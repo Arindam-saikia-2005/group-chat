@@ -3,8 +3,8 @@ import {  Schema,model,Types,Document } from "mongoose";
 export interface IGroup extends Document {
     _id:Types.ObjectId;
     name:string;
-    members:Types.ObjectId[];
-    admins:Types.ObjectId[];
+    members:Types.Array<Types.ObjectId>;
+    admins:Types.Array<Types.ObjectId>;
     createdBy:Types.ObjectId;
     createdAt:Date;
     updatedAt:Date;
@@ -39,4 +39,4 @@ const groupSchema = new Schema<IGroup>({
     timestamps:true
 })
 
-export default model<IGroup>("Group",groupSchema);
+export const Group = model<IGroup>("Group",groupSchema);
