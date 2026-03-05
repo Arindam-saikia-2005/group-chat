@@ -1,20 +1,34 @@
-import mongoose  from "mongoose"
+import mongoose from "mongoose"
 
+type ConnectionObject = {
+  isConnected: number;
+}
 
- const connectDb = async() => {
-    const mongodb_uri = process.env.MONGODB_URI
+const connection: ConnectionObject = {
+  isConnected : 0,
+}
 
-    if(!mongodb_uri) {
-        throw new Error("Please put a valid mongodb url ")
-    }
-     try {
-       await mongoose.connect(mongodb_uri)
-       .then(() =>{
-        console.log("mongodb connected successfully")
-       })     
-    } catch (error:any) {
-      console.error(error.message)  
-    }
- }
+export async function dbConnect(): Promise<void> {
 
- export default connectDb()
+  const mongoDb_url = process.env.MONGODB_URI!
+
+  if (!mongoDb_url) {
+    throw new Error("MongoDb url is not valid");
+  }
+
+  if (connection.isConnected) {
+    console.log("Mongodb already connected");
+    return;
+  }
+
+  try {
+    const db = await mongoose.connect(mongoDb_url);
+    const firstConn = db.connections[0]!;
+
+    connection.isConnected = firstConn.readyState;
+    console.log("MongoDb connected!");
+  } catch (err: any) {
+    console.log("Database connection failed", err);
+    process.exit(1);
+  }
+}

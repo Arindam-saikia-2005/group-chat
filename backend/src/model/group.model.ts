@@ -32,7 +32,7 @@ const groupSchema = new Schema<IGroup>({
     ],
     createdBy:{
         type:Schema.Types.ObjectId,
-        ref:"user",
+        ref:"User",
         required:true
     }
 },{

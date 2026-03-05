@@ -9,7 +9,7 @@ export const searchUsers = async(req:Request,res:Response) => {
       $options: "i"},
     } : {};
 
-    const users =  await User.find({ ...keyword, _id : {$ne : req.user!.id}  }).select("name email")
+    const users =  await User.find({keyword, _id : {$ne : req.user?.id as string}  }).select("name email")
     res.json({users})
   } catch (error:any) {
     console.error(error.message);
