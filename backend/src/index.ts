@@ -57,10 +57,10 @@ export const initilizeSocket = async(server:HTTPServer) => {
 }
 
 // routes
-app.use("/auth",authRouter);
-app.use("/user",userRoute);
-app.use("/group",groupRoute);
-app.use("/message",messageRouter);
+app.use("/api/auth",authRouter);
+app.use("/api/user",userRoute);
+app.use("/api/group",groupRoute);
+app.use("/api/message",messageRouter);
 
 dbConnect()
 
