@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { Group } from "../model/group.model.js";
-import { Types, type ObjectId } from "mongoose";
+import { Types } from "mongoose";
 
 
 export const createGroup = async (req: Request, res: Response) => {
@@ -83,6 +83,92 @@ export const addMembers = async (req: Request, res: Response) => {
     }
 }
 
+export const promoteAdmin = async (req: Request, res: Response) => {
+    try {
+        const groupId = req.params.groupId as string;
+        const userId = req.body.userId as string;
+
+        const group = await Group.findById(groupId)
+        if (!group) {
+            return res.status(404).json({ msg: "group not found!" })
+        }
+
+        if (!group.admins.includes(new Types.ObjectId(req.user?.id))) {
+            return res.json(403).json({
+                msg: "Only Admin can do it"
+            })
+        }
+
+        const isMember = group.members.some((member) => member.toString() === userId)
+
+        if (!isMember) {
+            return res.status(400).json({
+                msg: "User not a group member"
+            })
+        }
+
+        const alreadyAdmin = group.admins.some((admin) => admin.toString() === userId);
+
+        if (alreadyAdmin) {
+            return res.status(400).json({
+                msg: "User already an admin"
+            })
+        }
+
+        group.admins.push(userId);
+
+        await group.save()
+
+        const updatedGroup = await Group.findById(groupId).populate("members", "name").populate("admins", "name");
+
+        res.json({
+            message: 'User promoted to admin',
+            group: updatedGroup
+        })
+
+    } catch (err: any) {
+        console.error("Error while promting an user to admin role", err.message);
+        res.status(500).json({ msg: "Internal server error" })
+    }
+}
+
+export const demoteAdmin = async(req:Request,res:Response) => {
+    try {
+        const groupId = req.params.groupId as string;
+        const userId = req.body.userId as string;
+
+        const group = await Group.findById(groupId);
+
+        if(!group) {
+            return res.status(404).json({
+                message:"group not found"
+            })
+        }
+
+        const isAdmin = group.admins.some((admin) => admin.toString() ===  req.user?.id);
+
+        if(!isAdmin) {
+            return res.status(400).json({message:"Only admin can do it"})
+        }
+
+         const isMember = group.members.some((member) => member.toString() === userId)
+
+        if (!isMember) {
+            return res.status(400).json({
+                msg: "User not a group member"
+            })
+        }
+
+
+         group.admins.pull(userId)
+         await group.save()
+
+    } catch (error:any) {
+        console.error("Error while demoting an user",error.message);
+        res.status(500).json({msg:"Internal server error"})
+    }
+}
+
 export const removeMember = async (req: Request, res: Response) => {
     try {
         const groupId = req.params.groupId as string;
@@ -102,7 +188,7 @@ export const removeMember = async (req: Request, res: Response) => {
         await group.save();
 
         res.json({
-        msg: "user remove successfull"
+            msg: "user remove successfull"
         })
     } catch (err: any) {
         console.error("error while removing a member", err.message);

@@ -1,7 +1,5 @@
 
 export interface serverToClientEvents {
-    // when a new message arrives we'll send the full message document.
-    // the client side can define its own interface to match what's received.
     receive_message: (message: any) => void;
     user_typing: (data: { userId: string; groupId: string }) => void;
     user_stop_typing: (data: { userId: string; groupId: string }) => void;
