@@ -4,7 +4,8 @@ import type { ClientToServerEvents, ServerToClientEvents } from "../types/socket
 
 const URL = "http://localhost:8000";
 export const socket:Socket<ServerToClientEvents,ClientToServerEvents>= io(URL,{
-    autoConnect:false
+    autoConnect:false,
+    withCredentials:true,
 });
 
 export const connectSocket = (token:string) => {

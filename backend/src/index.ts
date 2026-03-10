@@ -11,6 +11,9 @@ import type { clientToServerEvents, serverToClientEvents } from "./socket/types.
 import { User } from "./model/user.model.js";
 import { registerChatHandlers } from "./socket/chat.js";
 import { dbConnect } from "./config/db.js";
+import jwt from "jsonwebtoken"
+import cors from "cors"
+
 
 dotenv.config();
 
@@ -23,14 +26,33 @@ app.use(express.json());
 app.use(express.urlencoded({
     extended:true
 }))
+app.use(cors())
+
 
 export const initilizeSocket = async(server:HTTPServer) => {
   const io = new Server<clientToServerEvents,serverToClientEvents>(server,{
     cors: {
-        origin:process.env.CLIENT_URL,
+        origin:process.env.CLIENT_URL ,
         credentials:true
     }
   });
+
+  io.use(async(socket,next) => {
+    try {
+      const token = socket.handshake.auth?.token;
+      if(!token)  throw new Error("unAuthorized");
+    const decode = jwt.verify(token,process.env.JWT_SECRET!) as {id:string}
+
+    const user = await User.findById(decode.id);
+
+    if(!user) throw new Error("user not found")
+
+      socket.data.user  = user;
+      next();
+    } catch (error) {
+      next(new Error("UnAuthorized"))
+    }
+  })
 
   io.on("connection",async(socket) => {
     const user = socket.data.user;
@@ -64,6 +86,7 @@ app.use("/api/message",messageRouter);
 
 dbConnect()
 
+initilizeSocket(server)
 
 const getOnelineUsers = async(): Promise<string[]> => {
     const users = await User.find({isOnline:true}).select("_id")

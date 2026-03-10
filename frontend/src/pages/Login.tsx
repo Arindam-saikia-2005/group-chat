@@ -43,6 +43,8 @@ export default function Login() {
             placeholder="Enter your password..."
           />
         </div>
+        <button type="submit">Login</button>
+        <p className="text-blue-600 text-sm px-4 py-3">Don't have an account ? <span className="text-sm text-blue-600">register</span></p>
       </form>
     </div>
   );

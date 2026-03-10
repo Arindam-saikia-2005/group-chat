@@ -2,6 +2,7 @@ import axios from "axios";
 
 const URL = "http://localhost:8000/api/group";
 
+
 export const createGroup = async (data: any) => {
   const token = localStorage.getItem("token");
   const res = await axios.post(`${URL}/create`, data, {
@@ -80,3 +81,5 @@ export const deleteGroup = async (groupId: string) => {
 
   return res.data;
 };
+
+
