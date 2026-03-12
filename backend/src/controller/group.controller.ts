@@ -21,6 +21,24 @@ export const createGroup = async (req: Request, res: Response) => {
     }
 }
 
+export const usersAllGroups = async(req:Request,res:Response) => {
+    try {
+        const userId = req.user?.id;
+        const group = await Group.find({members:userId});
+        if(!group) {
+            return res.json({
+                msg:"No group found  with this userId"
+            })
+        }
+
+        res.status(200).json(group)
+
+    } catch (error:any) {
+         console.error(error.message);
+         res.status(500).json({message:"Internal server error"})
+    }
+}
+
 export const getGroupById = async (req: Request, res: Response) => {
     try {
         const groupId = req.params.groupId as string;

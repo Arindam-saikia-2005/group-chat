@@ -10,14 +10,18 @@ export default function SignUp() {
   });
 
   const handleOnChage = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.value]: e.target.name });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:8000/api/user/register", formData);
-      toast.success("Form submitted successfully!");
+      const res = await axios.post("http://localhost:8000/api/auth/register", formData);
+      const token = res.data.token;
+      if (token) {
+        localStorage.setItem("token", token);
+      }
+      toast.success("Registration successful!");
       setFormData({ name: "", email: "", password: "" });
     } catch (error: any) {
       toast.error("Registration failed");

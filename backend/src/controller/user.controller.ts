@@ -38,7 +38,10 @@ export const getUserById = async (req: Request, res: Response) => {
 
 export const AllUsers = async (req: Request, res: Response) => {
   try {
-    const users = await User.find();
+    const userId = req.user?.id;
+    const users = await User.find({
+      _id:{$ne:userId}
+    } as any)
     if (!users) {
       return res.status(404).json({ message: "No user found!" })
     }
@@ -54,13 +57,17 @@ export const AllUsers = async (req: Request, res: Response) => {
 export const uploadUserProfilePic = async (req: Request, res: Response) => {
   try {
     const { profilePic } = req.body;
-
     if (!profilePic) {
       return res.status(400).json({ message: "profilePic is required!" })
     }
     const uploadResponse = await Cloudinary.uploader.upload(profilePic);
 
-    res.status(200).json(uploadResponse)
+    const user = await User.findByIdAndUpdate(req.user?.id, {
+      profilePic: uploadResponse.secure_url
+    }, {
+      new: true
+    })
+    res.status(200).json(user)
   } catch (err: any) {
     console.error(err.message);
     res.status(500).json({ err: "Internal server error" })

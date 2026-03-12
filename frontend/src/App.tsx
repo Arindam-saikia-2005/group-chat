@@ -1,31 +1,42 @@
 import { useEffect } from "react";
 import { connectSocket } from "./socket/socket";
-import { BrowserRouter ,Routes,Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, redirect } from "react-router-dom";
 import SignUp from "./pages/SignUp";
 import Login from "./pages/Login";
-import Sidebar from "./components/Sidebar";
-
-
+import axios from "axios";
+import ChatLayout from "./pages/ChatLayout";
 
 export default function Page() {
-  useEffect(() => {
-    const token = localStorage.getItem("token")
+  const token = localStorage.getItem("token");
+  async function getLoggedInUser() {
+    await axios.get("http://localhost:8000/api/auth/me",{
+      headers:{
+        Authorization:`Bearer ${token}`
+      }
+    });
+  }
 
-    if(token) {
-      connectSocket(token!)
+  if(!token) {
+    redirect("/login")
+  }
+
+  useEffect(() => {
+    getLoggedInUser()
+    if (token) {
+      connectSocket(token!);
     }
-  },[])
+  }, []);
   return (
     <>
-      <div className="w-[20%] h-screen border-r border-gray-100">
-          <Sidebar/>
-      </div>
+      <div>
       <BrowserRouter>
-      <Routes>
-        <Route path="/register" element={<SignUp/>}/>
-        <Route path="/login" element={<Login/>}/>
-      </Routes>
+        <Routes>
+          <Route path="/" index element={token ? <ChatLayout/> : ""} />
+          <Route path="/register" element={!token ?<SignUp /> : ""} />
+          <Route path="/login" element={!token ? <Login />: ""} />
+        </Routes>
       </BrowserRouter>
+      </div>
     </>
-  )
+  );
 }

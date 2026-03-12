@@ -1,60 +1,86 @@
-import axios from "axios";
-import { useEffect, useState } from "react";
 import { IoIosSearch } from "react-icons/io";
+import { MdGroupAdd } from "react-icons/md";
+import { useEffect, useState } from "react";
+import CreateGroupModal from "./CreateModal";
+import axios from "axios";
 
-interface IUser {
-  id:string
-  name: string;
-  email: string;
-  password: string;
-  profilePic?: string;
-  isOnline: boolean;
-  lastSeen: Date;
-  createdAt: Date;
-  updatedAt: Date;
+
+ interface IGroup  {
+   _id:string;
+    name:string;
+    createdAt:Date;
+    updatedAt:Date;
 }
 
 export default function Sidebar() {
-  const [users, setUsers] = useState<IUser[]>([]);
+  const [openCreateGroup, setOpenCreateGroup] = useState(false);
+  const [groups, setGroups] = useState<IGroup[]>([]);
 
-  const getAllUsers = async () => {
-    const token = localStorage.getItem("token");
-    const res = await axios.get("http://localhost:8000/api/user", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    console.log(res.data)
-    setUsers(res.data.users);
-    return res.data.users;
+  const token = localStorage.getItem("token");
+
+  const getAllGroups = async () => {
+    await axios
+      .get("http://localhost:8000/api/group", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((res) => setGroups(res.data));
   };
 
   useEffect(() => {
-    getAllUsers();
-  });
+    getAllGroups();
+  }, []);
 
   return (
-    <div className="h-full w-[30%] space-y-3 ">
+    <div className="w-[350px] bg-[#111b21] flex flex-col border-r border-gray-700">
+      {/* header */}
 
-      {/*------- Search-bar------ */}
-    
-      <div className="flex h-auto w-[250px] justify-center bg-[#2d2e2e] rounded-md">
-        <div className="flex px-5 py-3 space-x-3">
-          <span><IoIosSearch size={20}/></span>
-          <p className="text-gray-50 text-sm">Search or start a new chat</p>
+      <div className="flex items-center justify-between px-4 py-3 bg-[#202c33]">
+        <p className="text-white font-semibold">Chats</p>
+
+        <MdGroupAdd
+          size={24}
+          className="text-gray-300 cursor-pointer hover:text-white"
+          onClick={() => setOpenCreateGroup(true)}
+        />
+      </div>
+
+      {/* search */}
+
+      <div className="p-3">
+        <div className="flex items-center gap-3 bg-[#202c33] px-4 py-2 rounded-lg">
+          <IoIosSearch className="text-gray-400" />
+          <input
+            placeholder="Search groups"
+            className="bg-transparent outline-none text-white text-sm w-full"
+          />
         </div>
       </div>
 
- 
+      {/* group list */}
 
-     {
-      users.map((u) => (
-        <div className="flex" key={u.id}>
-            <p className="rounded-[50%] text-white">{u.profilePic}</p>
-           <p className="text-sm font-semibold">{u.name}</p>
-        </div>
-      ))
-     }
+      <div className="flex-1 overflow-y-auto">
+        {/* example group item */}
+
+        {groups.map((g,) => (
+          <div key={g._id} className="flex items-center gap-3 px-4 py-3 hover:bg-[#202c33] cursor-pointer">
+            <div className="w-11 h-11 rounded-full bg-green-600 flex items-center justify-center text-white">
+              G
+            </div>
+
+            <div className="flex flex-col">
+              <p className="text-white text-sm font-medium">{g.name}</p>
+
+              <p className="text-xs text-gray-400">Last message preview...</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {openCreateGroup && (
+        <CreateGroupModal close={() => setOpenCreateGroup(false)} />
+      )}
     </div>
   );
 }

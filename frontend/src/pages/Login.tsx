@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
+import { redirect } from "react-router-dom";
 
 export default function Login() {
   const [formData, setFormData] = useState({
@@ -9,15 +10,21 @@ export default function Login() {
   });
 
   const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.value]: e.target.name });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      axios.post("http://localhost:8000/api/user/login", formData);
+      const res = await axios.post("http://localhost:8000/api/auth/login", formData);
+      const token = res.data.token;
+      if (token) {
+        localStorage.setItem("token", token);
+      }
+
       setFormData({ email: "", password: "" });
-      toast.success("login successfull");
+      toast.success("login successful");
+      redirect("/")
     } catch (error: any) {
       console.error(error.message);
       toast.error("login failed");
@@ -25,7 +32,7 @@ export default function Login() {
   };
 
   return (
-    <div>
+    <div className="mx-auto">
       <form onSubmit={handleSubmit}>
         <div>
           <input
