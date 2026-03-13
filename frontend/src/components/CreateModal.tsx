@@ -1,5 +1,6 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+import { FiCamera } from "react-icons/fi";
 
 interface Props {
   close: () => void;
@@ -14,6 +15,7 @@ export default function CreateGroupModal({ close }: Props) {
   const [name, setName] = useState("");
   const [users, setUsers] = useState<IUser[]>([]);
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
+  const [Dp, setDp] = useState<string | null>(null);
 
   const token = localStorage.getItem("token");
 
@@ -21,7 +23,7 @@ export default function CreateGroupModal({ close }: Props) {
     try {
       await axios.post(
         "http://localhost:8000/api/group/create",
-        { name, members: selectedMembers },
+        { name, members: selectedMembers, groupDp: Dp },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -51,6 +53,22 @@ export default function CreateGroupModal({ close }: Props) {
     );
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files?.length) return;
+
+    const file = e.target.files[0];
+
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        setDp(reader.result);
+      }
+    };
+
+    reader.readAsDataURL(file);
+  };
+
   useEffect(() => {
     allUsers();
   }, []);
@@ -65,6 +83,23 @@ export default function CreateGroupModal({ close }: Props) {
           onChange={(e) => setName(e.target.value)}
           className="w-full p-2 rounded bg-[#2a3942] text-white outline-none"
         />
+
+        <div className="flex flex-col items-center mt-4">
+          <div className="w-20 h-20 rounded-full bg-[#2a3942] flex items-center justify-center overflow-hidden">
+            {Dp ? (
+              <img src={Dp} className="w-full h-full object-cover" />
+            ) : (
+               <FiCamera className="text-gray-400" size={20} />
+            )}
+          </div>
+
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+            className="mt-2 text-sm text-gray-300 border border-black rounded-md p-3"
+          />
+        </div>
 
         <div className="max-h-60 overflow-y-auto mt-3">
           {users.map((u) => (

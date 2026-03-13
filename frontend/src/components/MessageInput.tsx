@@ -23,9 +23,9 @@ export default function MessageInput({ groupId }:{groupId:string}) {
         },1000);
     }
     return (
-        <div>
+        <div className="gap-5">
            <input 
-           type=""
+           type="text"
            value={message}
            onChange={(e) => {setMessage(e.target.value),
             handleTyping()
@@ -33,7 +33,7 @@ export default function MessageInput({ groupId }:{groupId:string}) {
            placeholder="Type messages...."
            />
 
-           <button onClick={sendMessage}>Send</button>
+           <button className="bg-green-600 rounded-md px-4 py-2 border border-black" onClick={sendMessage}>Send</button>
         </div>
     )
 }

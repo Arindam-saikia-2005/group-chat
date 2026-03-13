@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
-import { redirect } from "react-router-dom";
+import { NavLink, redirect } from "react-router-dom";
 
 export default function Login() {
   const [formData, setFormData] = useState({
@@ -51,7 +51,7 @@ export default function Login() {
           />
         </div>
         <button type="submit">Login</button>
-        <p className="text-blue-600 text-sm px-4 py-3">Don't have an account ? <span className="text-sm text-blue-600">register</span></p>
+        <p className="text-blue-600 text-sm px-4 py-3">Don't have an account ? <span className="text-sm text-blue-600"><NavLink to="/register">register</NavLink></span></p>
       </form>
     </div>
   );

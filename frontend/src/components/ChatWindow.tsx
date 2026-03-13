@@ -1,55 +1,121 @@
-export default function ChatWindow() {
+import { useEffect, useState } from "react";
+import { socket } from "../socket/socket";
+import MessageInput from "./MessageInput";
+import toast from "react-hot-toast";
+import axios from "axios";
+
+interface IMessage {
+  _id: string;
+  group: string;
+  sender: { _id: string; name?: string; };
+  content: string;
+  type: "text" | "image";
+  readBy: string[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+ interface IGroup {
+  _id:string;
+  name:string;
+  admins:string[];
+ }
+
+export default function ChatWindow({ group }: { group: any }) {
+  const [messages, setMessages] = useState<IMessage[]>([]);
+  const [userGroup,setUserGroup] = useState<IGroup[]>([])
+
+   async function fetchAllUsersGroup () {
+    const token = await localStorage.getItem("token")
+    try {
+      await axios.get("http://localhost:8000/api/group",{
+        headers:{
+          Authorization:`Bearer ${token}`
+        }
+      }).then((res) =>setUserGroup(res.data))
+    } catch(error:any) {
+      console.error(error.message);
+      toast.error("failed to fetch")
+    }
+   }
+
+
+  useEffect(() => {
+    if (group?._id) {
+      socket.emit("join_group", group._id);
+
+      return () => {
+        socket.emit("leave_group", group._id);
+      };
+    }
+    fetchAllUsersGroup()
+  }, [group]);
+
+
+  useEffect(() => {
+    if (group?._id) {
+      const handleMessage = (msg: IMessage) => {
+        if (msg.group === group._id) {
+          setMessages((prev) => [...prev, msg]);
+        }
+      };
+
+      socket.on("receive_message", handleMessage);
+
+      return () => {
+        socket.off("receive_message", handleMessage);
+      };
+    }
+  }, [group]);
+
+  if (!group) {
+    return (
+      <div className="flex-1 flex items-center justify-center text-gray-400">
+        Select a group
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col flex-1">
-
       {/* chat header */}
 
       <div className="flex items-center gap-3 px-5 py-3 bg-[#202c33] border-b border-gray-700">
-        <img
-          src="https://i.pravatar.cc/40"
-          className="w-10 h-10 rounded-full"
-        />
+        {
+          userGroup.map((g) => (
+        //     <img
+        //   src="https://i.pravatar.cc/40"
+        //   className="w-10 h-10 rounded-full"
+        // />
 
         <div>
-          <p className="text-white font-semibold">John Doe</p>
-          <p className="text-xs text-gray-400">Online</p>
+          <p className="text-white font-semibold">{g.name}</p>
+          {/* <p className="text-xs text-gray-400">Online</p> */}
         </div>
+          ))
+        }
+        
       </div>
 
       {/* messages */}
 
       <div className="flex-1 p-5 overflow-y-auto bg-[#0b141a] space-y-3">
-
-        {/* received message */}
-
-        <div className="bg-[#202c33] w-fit px-4 py-2 rounded-lg text-white text-sm">
-          Hello 👋
-        </div>
-
-        {/* sent message */}
-
-        <div className="bg-[#005c4b] w-fit px-4 py-2 rounded-lg text-white text-sm ml-auto">
-          Hi! How are you?
-        </div>
-
+        {messages.map((msg) => (
+          <div
+            key={msg._id}
+            className={`w-fit px-4 py-2 rounded-lg text-white text-sm
+     ${msg.sender._id === socket.id ? "bg-[#005c4b] ml-auto" : "bg-[#202c33]"}`}
+          >
+            {msg.content}
+          </div>
+        ))}
       </div>
 
       {/* message input */}
 
-      <div className="flex items-center gap-3 px-4 py-3 bg-[#202c33]">
-
-        <input
-          type="text"
-          placeholder="Type a message"
-          className="flex-1 bg-[#2a3942] text-white px-4 py-2 rounded-lg outline-none"
-        />
-
-        <button className="bg-[#00a884] px-4 py-2 rounded-lg text-white">
-          Send
-        </button>
-
+      <div className=" gap-3 px-4 py-3 bg-[#202c33]">
+        <MessageInput groupId={group._id}/>
       </div>
-
     </div>
   );
 }

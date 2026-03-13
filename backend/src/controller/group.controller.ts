@@ -1,16 +1,18 @@
 import type { Request, Response } from "express";
 import { Group } from "../model/group.model.js";
 import { Types } from "mongoose";
+import { v2 as cloudinary } from "cloudinary";
 
 
 export const createGroup = async (req: Request, res: Response) => {
     try {
-        const { name, members } = req.body
+        const { name, members,groupDp } = req.body
         const group = await Group.create({
             name,
             members: [...new Set([...members, req.user?.id])],
             admins: [req.user?.id],
-            createdBy: req.user?.id
+            createdBy: req.user?.id,
+            groupDp:groupDp || ""
         } as any)
         res.status(201).json({ group })
     } catch (err: any) {
@@ -72,6 +74,8 @@ export const updateGroupName = async (req: Request, res: Response) => {
     }
 }
 
+
+ 
 export const addMembers = async (req: Request, res: Response) => {
     try {
         const userId = req.body.userId;

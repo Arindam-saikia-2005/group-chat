@@ -3,6 +3,7 @@ import {  Schema,model,Types,Document } from "mongoose";
 export interface IGroup extends Document {
     _id:Types.ObjectId;
     name:string;
+    groupDp?:string;
     members:Types.Array<Types.ObjectId>;
     admins:Types.Array<Types.ObjectId>;
     createdBy:Types.ObjectId;
@@ -15,6 +16,10 @@ const groupSchema = new Schema<IGroup>({
         type:String,
         required:true,
         unique:true
+    },
+    groupDp:{
+      type:String,
+      default:""
     },
     members:[
         {

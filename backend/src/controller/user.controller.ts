@@ -1,7 +1,6 @@
 import type { Request, Response } from "express";
 import { User } from "../model/user.model.js";
-import { Cloudinary } from "../config/cloudinary.js";
-
+import { v2 as cloudinary } from "cloudinary"
 
 
 export const searchUsers = async (req: Request, res: Response) => {
@@ -38,21 +37,29 @@ export const getUserById = async (req: Request, res: Response) => {
 
 export const AllUsers = async (req: Request, res: Response) => {
   try {
-    const userId = req.user?.id;
-    const users = await User.find({
-      _id:{$ne:userId}
-    } as any)
-    if (!users) {
-      return res.status(404).json({ message: "No user found!" })
+    if (!req.user?.id) {
+      return res.status(401).json({ message: "Unauthorized" });
     }
+
+    const userId = req.user.id;
+
+    const users = await User.find({
+      _id: { $ne: userId }
+    });
+
+    if (users.length === 0) {
+      return res.status(404).json({ message: "No user found!" });
+    }
+
     res.status(200).json({
       users
-    })
+    });
+
   } catch (error: any) {
     console.error(error.message);
-    res.status(500).json({ err: "Internal server error" })
+    res.status(500).json({ err: "Internal server error" });
   }
-}
+};
 
 export const uploadUserProfilePic = async (req: Request, res: Response) => {
   try {
@@ -60,37 +67,16 @@ export const uploadUserProfilePic = async (req: Request, res: Response) => {
     if (!profilePic) {
       return res.status(400).json({ message: "profilePic is required!" })
     }
-    const uploadResponse = await Cloudinary.uploader.upload(profilePic);
+    const uploadResponse = await cloudinary.uploader.upload(profilePic);
 
     const user = await User.findByIdAndUpdate(req.user?.id, {
       profilePic: uploadResponse.secure_url
     }, {
-      new: true
+      returnDocument:"after"
     })
     res.status(200).json(user)
   } catch (err: any) {
     console.error(err.message);
     res.status(500).json({ err: "Internal server error" })
-  }
-}
-
-export const changeUserProfilePic = async (req: Request, res: Response) => {
-  try {
-    const { profilePic } = req.body;
-    const userId = req.user?.id
-    if (!profilePic) {
-      return res.status(400).json({ messagae: "Profile picture required" })
-    }
-
-    const uploadResponse = await Cloudinary.uploader.upload(profilePic);
-
-    const user = await User.findByIdAndUpdate(userId, { profilePic: uploadResponse.secure_url },
-      { new: true }
-    )
-
-    res.status(200).json({ user })
-  } catch (error: any) {
-    console.error(error.message);
-    res.status(500).json({ message: "Internal server error" })
   }
 }

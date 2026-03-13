@@ -4,12 +4,17 @@ import toast from "react-hot-toast";
 
 export default function UploadProfile() {
   const [profilePic, setProfilePic] = useState<string | null>(null);
+  const token = localStorage.getItem("token")
 
   const handleUplodImg = async(e:React.FormEvent<HTMLFormElement>) => {
     try {
         e.preventDefault();
-        axios.post("http://localhost:8000/api/user/profile-pic",{profilePic});
-        setProfilePic("");
+       await axios.post("http://localhost:8000/api/user/profile-pic",{profilePic},{
+        headers:{
+          Authorization:`Bearer ${token}`
+        }
+       });
+        setProfilePic(null);
         toast.success("image upload successfully")
     } catch (err: any) {
       console.error(err.message);

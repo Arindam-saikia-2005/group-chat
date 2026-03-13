@@ -1,8 +1,9 @@
+import "./config/cloudinary.js";
+
 import express from "express";
 import http from "http";
 import {Server} from "socket.io"
 import {Server as HTTPServer} from "http"
-import dotenv from "dotenv";
 import { authRouter } from "./routes/auth.route.js";
 import { userRoute } from "./routes/user.route.js";
 import { groupRoute } from "./routes/group.route.js";
@@ -13,9 +14,6 @@ import { registerChatHandlers } from "./socket/chat.js";
 import { dbConnect } from "./config/db.js";
 import jwt from "jsonwebtoken"
 import cors from "cors"
-
-
-dotenv.config();
 
 const port = process.env.PORT || 3000;
 const app = express();

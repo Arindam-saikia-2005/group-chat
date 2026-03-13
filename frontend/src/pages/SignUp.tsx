@@ -34,11 +34,11 @@ export default function SignUp() {
       <form onSubmit={handleSubmit}>
         <div className="flex justify-center">
           <input
-            type="text"
-            name="name"
-            value={FormData.name}
-            onChange={handleOnChage}
-            placeholder="Enter your name..."
+          type="text"
+          name="name"
+          value={formData.name}
+          placeholder="Enter your name"
+          onChange={handleOnChage}
           />
           <input
             type="email"
