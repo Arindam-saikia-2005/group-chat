@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 export default function SignUp() {
   const [formData, setFormData] = useState({
@@ -8,6 +9,8 @@ export default function SignUp() {
     email: "",
     password: "",
   });
+
+  const navigate =  useNavigate()
 
   const handleOnChage = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -23,6 +26,7 @@ export default function SignUp() {
       }
       toast.success("Registration successful!");
       setFormData({ name: "", email: "", password: "" });
+      navigate("/")
     } catch (error: any) {
       toast.error("Registration failed");
       console.error(error.message);

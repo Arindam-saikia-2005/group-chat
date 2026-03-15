@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { socket } from "../socket/socket";
 import MessageInput from "./MessageInput";
-import toast from "react-hot-toast";
 import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 
 interface IMessage {
   _id: string;
@@ -28,25 +28,38 @@ interface IMember {
   profilePic: string;
 }
 
-export default function ChatWindow({ group }: { group: any }) {
+export default function ChatWindow({ group }: { group: IGroup }) {
   const [messages, setMessages] = useState<IMessage[]>([]);
-  const [userGroup, setUserGroup] = useState<IGroup[]>([]);
 
-  async function fetchAllUsersGroup() {
-    const token = await localStorage.getItem("token");
+  const token = localStorage.getItem("token");
+
+  let userId = "";
+
+  if (token) {
+    const decode: any = jwtDecode(token);
+    userId = decode.id;
+  }
+
+  
+  async function getMessages() {
     try {
-      await axios
-        .get("http://localhost:8000/api/group", {
+      axios
+        .get(`http://localhost:8000/api/message/${group._id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         })
-        .then((res) => setUserGroup(res.data));
+        .then((res) => setMessages(res.data));
     } catch (error: any) {
       console.error(error.message);
-      toast.error("failed to fetch");
     }
   }
+
+  useEffect(() => {
+    getMessages();
+  }, [group]);
+
+  
 
   useEffect(() => {
     if (group?._id) {
@@ -56,21 +69,20 @@ export default function ChatWindow({ group }: { group: any }) {
         socket.emit("leave_group", group._id);
       };
     }
-    fetchAllUsersGroup();
   }, [group]);
 
   useEffect(() => {
     if (group?._id) {
-      const handleMessage = (msg: IMessage) => {
-        if (msg.group === group._id) {
-          setMessages((prev) => [...prev, msg]);
-        }
-      };
+      // const handleMessage = (msg: IMessage) => {
+      //   if (msg.group === group._id) {
+      //     setMessages((prev) => [...prev, msg]);
+      //   }
+      // };
 
-      socket.on("receive_message", handleMessage);
+      socket.on("receive_message", getMessages);
 
       return () => {
-        socket.off("receive_message", handleMessage);
+        socket.off("receive_message", getMessages);
       };
     }
   }, [group]);
@@ -88,33 +100,35 @@ export default function ChatWindow({ group }: { group: any }) {
       {/* chat header */}
 
       <div className="flex items-center gap-3 px-5 py-3 bg-[#202c33] border-b border-gray-700">
-        {userGroup.map((g) => (
-          <div className="flex space-x-3" key={g._id}>
-            <img src={g.groupDp || ""} className="w-10 h-10 rounded-full" />
-            <div className="flex flex-col">
-              <p className="text-white font-bold">{g.name}</p>
-              <div className="flex gap-4">
-              {g.members.map((m: IMember,i) => (
-                <p key={i} className="text-gray-400 text-sm">{m.name}</p>
-              ))}
-              </div>
-            </div>
+        <img src={group.groupDp} className="w-10 h-10 rounded-full" />
+
+        <div>
+          <p className="text-white font-bold">{group.name}</p>
+
+          <div className="flex gap-2 flex-wrap">
+            {group.members.map((m: IMember, i: number) => (
+              <span key={i} className="text-gray-400 text-xs">
+                {m.name}
+              </span>
+            ))}
           </div>
-        ))}
+        </div>
       </div>
 
       {/* messages */}
 
       <div className="flex-1 p-5 overflow-y-auto bg-[#0b141a] space-y-3">
-        {messages.map((msg) => (
-          <div
-            key={msg._id}
-            className={`w-fit px-4 py-2 rounded-lg text-white text-sm
-     ${msg.sender._id === socket.id ? "bg-[#005c4b] ml-auto" : "bg-[#202c33]"}`}
-          >
-            {msg.content}
-          </div>
-        ))}
+        {messages.map((msg) => {
+          return (
+            <div
+              key={msg._id}
+              className={`w-fit px-4 py-2 rounded-lg text-white text-sm
+     ${msg.sender._id === userId ? "bg-[#005c4b] ml-auto" : "bg-[#202c33]"}`}
+            >
+              {msg.content}
+            </div>
+          );
+        })}
       </div>
 
       {/* message input */}

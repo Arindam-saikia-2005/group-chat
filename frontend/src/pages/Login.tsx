@@ -1,13 +1,14 @@
 import axios from "axios";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
-import { NavLink, redirect } from "react-router-dom";
+import { NavLink, useNavigate} from "react-router-dom";
 
 export default function Login() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+  const navigate =  useNavigate()
 
   const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -24,7 +25,7 @@ export default function Login() {
 
       setFormData({ email: "", password: "" });
       toast.success("login successful");
-      redirect("/")
+      navigate("/")
     } catch (error: any) {
       console.error(error.message);
       toast.error("login failed");

@@ -3,7 +3,7 @@ import { MdGroupAdd } from "react-icons/md";
 import { useState } from "react";
 import CreateGroupModal from "./CreateModal";
 import GroupItem from "./GroupItem";
-import { Navigate } from "react-router-dom";
+import {useNavigate } from "react-router-dom";
 import { IoExitOutline } from "react-icons/io5";
 
 export default function Sidebar({
@@ -12,11 +12,12 @@ export default function Sidebar({
   selectedGroup: (group: any) => void;
 }) {
   const [openCreateGroup, setOpenCreateGroup] = useState(false);
+  const navigate = useNavigate()
 
   function logout() {
-    localStorage.clear();
-    <Navigate to="/login" />;
-  }
+  localStorage.clear();
+  navigate("/login", { replace: true });
+}
 
   return (
     <div className="w-87.5 bg-[#111b21] flex flex-col border-r border-gray-700">
@@ -28,7 +29,7 @@ export default function Sidebar({
           <IoExitOutline
             size={24}
             className="text-gray-300 cursor-pointer hover:text-white"
-            onClick={() => logout()}
+            onClick={logout}
           />
           <MdGroupAdd
             size={24}
