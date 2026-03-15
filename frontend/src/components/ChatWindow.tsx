@@ -7,7 +7,7 @@ import axios from "axios";
 interface IMessage {
   _id: string;
   group: string;
-  sender: { _id: string; name?: string; };
+  sender: { _id: string; name?: string };
   content: string;
   type: "text" | "image";
   readBy: string[];
@@ -15,30 +15,38 @@ interface IMessage {
   updatedAt: Date;
 }
 
- interface IGroup {
-  _id:string;
-  name:string;
-  admins:string[];
- }
+interface IGroup {
+  _id: string;
+  name: string;
+  admins: string[];
+  members: IMember[];
+  groupDp: string;
+}
+
+interface IMember {
+  name: string;
+  profilePic: string;
+}
 
 export default function ChatWindow({ group }: { group: any }) {
   const [messages, setMessages] = useState<IMessage[]>([]);
-  const [userGroup,setUserGroup] = useState<IGroup[]>([])
+  const [userGroup, setUserGroup] = useState<IGroup[]>([]);
 
-   async function fetchAllUsersGroup () {
-    const token = await localStorage.getItem("token")
+  async function fetchAllUsersGroup() {
+    const token = await localStorage.getItem("token");
     try {
-      await axios.get("http://localhost:8000/api/group",{
-        headers:{
-          Authorization:`Bearer ${token}`
-        }
-      }).then((res) =>setUserGroup(res.data))
-    } catch(error:any) {
+      await axios
+        .get("http://localhost:8000/api/group", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then((res) => setUserGroup(res.data));
+    } catch (error: any) {
       console.error(error.message);
-      toast.error("failed to fetch")
+      toast.error("failed to fetch");
     }
-   }
-
+  }
 
   useEffect(() => {
     if (group?._id) {
@@ -48,9 +56,8 @@ export default function ChatWindow({ group }: { group: any }) {
         socket.emit("leave_group", group._id);
       };
     }
-    fetchAllUsersGroup()
+    fetchAllUsersGroup();
   }, [group]);
-
 
   useEffect(() => {
     if (group?._id) {
@@ -81,20 +88,19 @@ export default function ChatWindow({ group }: { group: any }) {
       {/* chat header */}
 
       <div className="flex items-center gap-3 px-5 py-3 bg-[#202c33] border-b border-gray-700">
-        {
-          userGroup.map((g) => (
-        //     <img
-        //   src="https://i.pravatar.cc/40"
-        //   className="w-10 h-10 rounded-full"
-        // />
-
-        <div>
-          <p className="text-white font-semibold">{g.name}</p>
-          {/* <p className="text-xs text-gray-400">Online</p> */}
-        </div>
-          ))
-        }
-        
+        {userGroup.map((g) => (
+          <div className="flex space-x-3" key={g._id}>
+            <img src={g.groupDp || ""} className="w-10 h-10 rounded-full" />
+            <div className="flex flex-col">
+              <p className="text-white font-bold">{g.name}</p>
+              <div className="flex gap-4">
+              {g.members.map((m: IMember,i) => (
+                <p key={i} className="text-gray-400 text-sm">{m.name}</p>
+              ))}
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* messages */}
@@ -114,7 +120,7 @@ export default function ChatWindow({ group }: { group: any }) {
       {/* message input */}
 
       <div className=" gap-3 px-4 py-3 bg-[#202c33]">
-        <MessageInput groupId={group._id}/>
+        <MessageInput groupId={group._id} />
       </div>
     </div>
   );

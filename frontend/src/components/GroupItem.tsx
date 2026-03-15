@@ -34,11 +34,11 @@ export default function GroupItem({ selectedGroup } : {selectedGroup :(group: an
         <div
           key={g._id}
           onClick={()=>selectedGroup(g)}
-          className="flex items-center gap-3 px-4 py-3 hover:bg-[#202c33] cursor-pointer"
+          className="flex items-center gap-3 px-4 py-3 hover:bg-[#202c33] hover:rounded-md cursor-pointer"
         >
-          <div className="w-11 h-11 rounded-full bg-green-600 flex items-center justify-center text-white">
+          <div className="w-11 h-11 rounded-full  flex items-center justify-center text-white">
             <img
-            className="h-auto w-auto object-cover" 
+            className="h-auto w-auto object-contain rounded-full" 
             src={g.groupDp} />
           </div>
 

@@ -4,7 +4,6 @@ import {
   BrowserRouter,
   Routes,
   Route,
-  redirect,
   Navigate,
 } from "react-router-dom";
 import SignUp from "./pages/SignUp";

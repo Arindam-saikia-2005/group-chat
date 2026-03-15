@@ -3,10 +3,20 @@ import { MdGroupAdd } from "react-icons/md";
 import { useState } from "react";
 import CreateGroupModal from "./CreateModal";
 import GroupItem from "./GroupItem";
+import { Navigate } from "react-router-dom";
+import { IoExitOutline } from "react-icons/io5";
 
-
-export default function Sidebar({ selectedGroup } :{selectedGroup : (group: any) => void} ) {
+export default function Sidebar({
+  selectedGroup,
+}: {
+  selectedGroup: (group: any) => void;
+}) {
   const [openCreateGroup, setOpenCreateGroup] = useState(false);
+
+  function logout() {
+    localStorage.clear();
+    <Navigate to="/login" />;
+  }
 
   return (
     <div className="w-87.5 bg-[#111b21] flex flex-col border-r border-gray-700">
@@ -14,12 +24,18 @@ export default function Sidebar({ selectedGroup } :{selectedGroup : (group: any)
 
       <div className="flex items-center justify-between px-4 py-3 bg-[#202c33]">
         <p className="text-white font-semibold">Chats</p>
-
-        <MdGroupAdd
-          size={24}
-          className="text-gray-300 cursor-pointer hover:text-white"
-          onClick={() => setOpenCreateGroup(true)}
-        />
+        <div className="flex space-x-3">
+          <IoExitOutline
+            size={24}
+            className="text-gray-300 cursor-pointer hover:text-white"
+            onClick={() => logout()}
+          />
+          <MdGroupAdd
+            size={24}
+            className="text-gray-300 cursor-pointer hover:text-white"
+            onClick={() => setOpenCreateGroup(true)}
+          />
+        </div>
       </div>
 
       {/* search */}
@@ -34,19 +50,13 @@ export default function Sidebar({ selectedGroup } :{selectedGroup : (group: any)
         </div>
       </div>
 
-      {/* group list */}
-
       <div className="flex-1 overflow-y-auto">
-        {/* example group item */}
-
         <GroupItem selectedGroup={selectedGroup} />
       </div>
 
       {openCreateGroup && (
         <CreateGroupModal close={() => setOpenCreateGroup(false)} />
       )}
-
-      {/* <UploadProfile/> */}
     </div>
   );
 }

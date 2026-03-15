@@ -23,8 +23,9 @@ export default function MessageInput({ groupId }:{groupId:string}) {
         },1000);
     }
     return (
-        <div className="gap-5">
+        <div className="flex space-x-3">
            <input 
+           className="w-full p-3"
            type="text"
            value={message}
            onChange={(e) => {setMessage(e.target.value),

@@ -32,7 +32,7 @@ export default function Login() {
   };
 
   return (
-    <div className="mx-auto">
+    <div className="mx-auto bg-red-500">
       <form onSubmit={handleSubmit}>
         <div>
           <input
