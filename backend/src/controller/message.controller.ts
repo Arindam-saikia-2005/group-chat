@@ -7,9 +7,9 @@ export const getMessages = async(req:Request,res:Response) => {
     try {
         const group = await Group.findById(req.params.groupId);
 
-        if(!group?.members.includes(new Types.ObjectId(req.user?.id))) {
-            return res.status(403).json({msg:"Forbiddeb"})
-        } 
+        // if(!group?.members.includes(new Types.ObjectId(req.user?.id))) {
+        //     return res.status(403).json({msg:"Forbidden"})
+        // } 
 
         const messages = await Message.find({group:req.params.groupId as string}).populate("sender", "name").sort({createdAt:-1});
 

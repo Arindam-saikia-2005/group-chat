@@ -26,7 +26,7 @@ export const createGroup = async (req: Request, res: Response) => {
 export const usersAllGroups = async(req:Request,res:Response) => {
     try {
         const userId = req.user?.id;
-        const group = await Group.find({members:userId});
+        const group = await Group.find({members:userId}).populate("members", "name");
         if(!group) {
             return res.json({
                 msg:"No group found  with this userId"
