@@ -166,6 +166,8 @@ export default function ChatWindow({ group }: { group: IGroup | null }) {
     );
   }
 
+  console.log("typingUsers", typingUsers);
+
   return (
     <div className="flex flex-col flex-1">
       {/* chat header */}
@@ -182,16 +184,16 @@ export default function ChatWindow({ group }: { group: IGroup | null }) {
                 {m.name}
               </span>
             ))}
-            <div className="flex items-center gap-2 text-gray-400 text-sm px-5">
-              <span>
-                {typingUsers.map((u) => u.username).join(", ")} typing
-              </span>
+          </div>
+          <div className="flex items-center gap-2 text-gray-400 text-sm px-5">
+            <span>{typingUsers.map((u) => u.username).join(", ")}</span>
+            {typingUsers.length > 0 && (
               <div className="flex gap-1">
                 <span className="animate-bounce">.</span>
                 <span className="animate-bounce delay-100">.</span>
                 <span className="animate-bounce delay-200">.</span>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>
@@ -213,7 +215,7 @@ export default function ChatWindow({ group }: { group: IGroup | null }) {
         })}
         {typingUsers.length > 0 && (
           <div className="text-xs text-gray-300">
-            {typingUsers.map((u) => u.username).join(", ")} typing...
+            {typingUsers.map((u) => u.username).join(", ")}
           </div>
         )}
       </div>
