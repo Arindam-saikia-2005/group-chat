@@ -1,11 +1,15 @@
-import { useState } from "react"
+import { useState } from "react";
 import { socket } from "../socket/socket";
+import { jwtDecode } from "jwt-decode";
 
+export default function MessageInput({ groupId }: { groupId: string }) {
+  const [message, setMessage] = useState("");
 
-export default function MessageInput({ groupId }:{groupId:string}) {
-    const[message,setMessage] = useState("");
+  const token = localStorage.getItem("token");
+  const decoded: any = token ? jwtDecode(token) : null;
+  const username = decoded?.name || decoded?.username || "Anonymous";
 
-    const sendMessage = () => {
+  const sendMessage = () => {
         if(!message.trim()) return;
         socket.emit("send_message",{
             groupId,
@@ -15,14 +19,15 @@ export default function MessageInput({ groupId }:{groupId:string}) {
         setMessage("");
     }
 
-    const handleTyping = () => {
-        socket.emit("typing",groupId);
+  const handleTyping = () => {
+    socket.emit("typing", groupId, username);
 
-        setTimeout(() => {
-            socket.emit("stop_typing",groupId)
-        },1000);
-    }
-    return (
+    setTimeout(() => {
+      socket.emit("stop_typing", groupId);
+    }, 1000);
+  };
+
+  return (
         <div className="flex space-x-3">
            <input 
            className="w-full p-3"
