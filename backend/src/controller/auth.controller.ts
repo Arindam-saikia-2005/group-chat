@@ -27,7 +27,7 @@ export const register = async (req: Request, res: Response) => {
       password: hashPassword
     })
     res.status(201).json({
-      token: generateToken(user._id.toString())
+      token: generateToken(user._id.toString(),name)
     })
   } catch (error: any) {
     console.error(error.message);
@@ -45,7 +45,7 @@ export const login = async (req: Request, res: Response) => {
     if (!match) return res.status(400).json({ msg: "incorrect email and password" });
 
     res.json({
-      token: generateToken(user._id.toString())
+      token: generateToken(user._id.toString(),user.name)
     });
   } catch (error: any) {
     console.error(error.message)

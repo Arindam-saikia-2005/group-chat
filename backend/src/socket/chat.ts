@@ -22,7 +22,7 @@ export const registerChatHandlers = (io: Server<clientToServerEvents, serverToCl
       socket.leave(groupId);
     })
 
-    // SEND MESSSGE
+    // SEND MESSSAGE
     socket.on("send_message",async({ groupId,content,type }) => {
       const group =  await Group.findById(groupId);
       if(!group) return;
@@ -43,17 +43,24 @@ export const registerChatHandlers = (io: Server<clientToServerEvents, serverToCl
       io.to(groupId).emit("receive_message", populated);
     });
 
+    // DELETE MESSAGE
+    socket.on("delete_message",async({messageId,groupId})=>{
+      await Message.findByIdAndDelete(messageId);
+      io.to(groupId).emit("message_deleted",{messageId,groupId})
+    })
+
     // Typing
-    socket.on("typing",(groupId) => {
-      socket.to(groupId).emit("user_typing",{
-        userId:user._id.toString(),
-        groupId
+    socket.on("typing", (groupId,username) => {
+      socket.to(groupId).emit("user_typing", {
+        userId: user._id.toString(),
+        username:username || user.name,
+        groupId,
       });
     });
 
-    socket.on("stop_typing",(groupId) => {
-      socket.to(groupId).emit("user_stop_typing",{
-        userId:user._id.toString(),
+    socket.on("stop_typing", (groupId) => {
+      socket.to(groupId).emit("user_stop_typing", {
+        userId: user._id.toString(),
         groupId,
       });
     });
