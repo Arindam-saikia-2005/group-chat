@@ -10,6 +10,7 @@ import SignUp from "./pages/SignUp";
 import Login from "./pages/Login";
 import axios from "axios";
 import ChatLayout from "./pages/ChatLayout";
+import { Toaster } from "react-hot-toast";
 
 export default function Page() {
   const token = localStorage.getItem("token");
@@ -30,6 +31,7 @@ export default function Page() {
   }, [token]);
   return (
     <>
+    <Toaster/>
       <div>
         <BrowserRouter>
           <Routes>

@@ -7,9 +7,9 @@ export default function ChatLayout() {
 
 
   return (
-    <div className="flex h-screen bg-[#0b141a]">
+    <div className="flex h-screen bg-[#4c7591]">
       <Sidebar selectedGroup={setSelectedGroup} />
-      <ChatWindow group={selectedGroup} />
+      <ChatWindow group={selectedGroup} setSelectedGroup={setSelectedGroup} />
     </div>
   );
 }

@@ -5,6 +5,7 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import toast from "react-hot-toast";
 import { MdDelete } from "react-icons/md";
+import SmallMessage from "./SmallMessage";
 
 interface IMessage {
   _id: string;
@@ -17,15 +18,17 @@ interface IMessage {
   updatedAt: Date;
 }
 
-interface IGroup {
+export interface IGroup {
   _id: string;
   name: string;
   admins: string[];
   members: IMember[];
   groupDp: string;
+  createdBy:string;
 }
 
-interface IMember {
+export interface IMember {
+  _id:string;
   name: string;
   profilePic: string;
 }
@@ -35,9 +38,10 @@ interface ITypingUser {
   username: string;
 }
 
-export default function ChatWindow({ group }: { group: IGroup | null }) {
+export default function ChatWindow({ group,setSelectedGroup }: { group: IGroup | null,setSelectedGroup:React.Dispatch<React.SetStateAction<IGroup | null>>; }) {
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [typingUsers, setTypingUsers] = useState<ITypingUser[]>([]);
+  const [openModel,setOpenModel] = useState<Boolean>(false)
 
   const token = localStorage.getItem("token");
 
@@ -172,7 +176,7 @@ export default function ChatWindow({ group }: { group: IGroup | null }) {
     <div className="flex flex-col flex-1">
       {/* chat header */}
 
-      <div className="flex items-center gap-3 px-5 py-3 bg-[#202c33] border-b border-gray-700">
+      <div onClick={()=>setOpenModel(!openModel)} className="flex items-center gap-3 px-5 py-3 bg-[#202c33] border-b border-gray-700">
         <img src={group.groupDp} className="w-10 h-10 rounded-full" />
 
         <div>
@@ -196,7 +200,11 @@ export default function ChatWindow({ group }: { group: IGroup | null }) {
             )}
           </div>
         </div>
-      </div>
+      </div> 
+
+      {
+        openModel && <SmallMessage group={group} setGroup={setSelectedGroup} setOpenModel={setOpenModel}/>
+      } 
 
       {/* messages */}
 
