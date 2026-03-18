@@ -1,7 +1,6 @@
 import type { Request, Response } from "express";
 import { Group } from "../model/group.model.js";
 import { Types } from "mongoose";
-import { v2 as cloudinary } from "cloudinary";
 
 
 export const createGroup = async (req: Request, res: Response) => {
@@ -26,7 +25,7 @@ export const createGroup = async (req: Request, res: Response) => {
 export const usersAllGroups = async(req:Request,res:Response) => {
     try {
         const userId = req.user?.id;
-        const group = await Group.find({members:userId}).populate("members", "name");
+        const group = await Group.find({members:userId}).populate("members", "name").populate("admins", "name");
         if(!group) {
             return res.json({
                 msg:"No group found  with this userId"
@@ -116,7 +115,7 @@ export const promoteAdmin = async (req: Request, res: Response) => {
         }
 
         if (!group.admins.includes(new Types.ObjectId(req.user?.id))) {
-            return res.json(403).json({
+            return res.status(403).json({
                 msg: "Only Admin can do it"
             })
         }
@@ -184,6 +183,7 @@ export const demoteAdmin = async(req:Request,res:Response) => {
 
          group.admins.pull(userId)
          await group.save()
+         res.status(200).json({success:true})
 
     } catch (error:any) {
         console.error("Error while demoting an user",error.message);

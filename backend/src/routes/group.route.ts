@@ -10,6 +10,6 @@ groupRoute.get("/",protect,usersAllGroups)
 groupRoute.patch("/:groupId/name",protect,updateGroupName);
 groupRoute.post("/:groupId/members",protect,addMembers);
 groupRoute.patch("/:groupId/promote-admin",protect,promoteAdmin);
-groupRoute.patch("/groupId/demote-admin",protect,demoteAdmin)
+groupRoute.patch("/:groupId/demote-admin",protect,demoteAdmin)
 groupRoute.delete("/:groupId/members/:userId",protect,removeMember,)
 groupRoute.delete("/:groupId",protect,deleteGroup);
