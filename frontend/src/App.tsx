@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { connectSocket } from "./socket/socket";
 import {
   BrowserRouter,
@@ -13,7 +13,7 @@ import ChatLayout from "./pages/ChatLayout";
 import { Toaster } from "react-hot-toast";
 
 export default function Page() {
-  const token = localStorage.getItem("token");
+  const [token, setToken] = useState(localStorage.getItem("token"));
 
   async function getLoggedInUser() {
     await axios.get("http://localhost:8000/api/auth/me", {
@@ -22,6 +22,10 @@ export default function Page() {
       },
     });
   }
+
+  useEffect(() => {
+  setToken(localStorage.getItem("token"));
+}, []);
 
   useEffect(() => {
     if (token) {
@@ -38,15 +42,15 @@ export default function Page() {
             <Route
               path="/"
               index
-              element={token ? <ChatLayout /> : <Navigate to="/login" />}
+              element={token ? <ChatLayout setToken={setToken}/> : <Navigate to="/login" />}
             />
             <Route
               path="/register"
-              element={!token ? <SignUp /> : <Navigate to="/" />}
+              element={!token ? <SignUp setToken={setToken} /> : <Navigate to="/" />}
             />
             <Route
               path="/login"
-              element={!token ? <Login /> : <Navigate to="/" />}
+              element={!token ? <Login setToken={setToken} /> : <Navigate to="/" />}
             />
           </Routes>
         </BrowserRouter>

@@ -1,9 +1,13 @@
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useState, type Dispatch, type SetStateAction } from "react";
 import toast from "react-hot-toast";
 import { NavLink, useNavigate} from "react-router-dom";
 
-export default function Login() {
+interface LoginProps {
+  setToken: Dispatch<SetStateAction<string | null>>;
+}
+
+export default function Login({setToken}:LoginProps) {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -21,6 +25,7 @@ export default function Login() {
       const token = res.data.token;
       if (token) {
         localStorage.setItem("token", token);
+        setToken(token)
       }
 
       setFormData({ email: "", password: "" });

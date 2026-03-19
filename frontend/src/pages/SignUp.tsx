@@ -1,9 +1,13 @@
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useState, type Dispatch, type SetStateAction } from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
-export default function SignUp() {
+interface SignUpProps {
+  setToken: Dispatch<SetStateAction<string | null>>;
+}
+
+export default function SignUp({setToken} : SignUpProps) {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -23,6 +27,7 @@ export default function SignUp() {
       const token = res.data.token;
       if (token) {
         localStorage.setItem("token", token);
+        setToken(token)
       }
       toast.success("Registration successful!");
       setFormData({ name: "", email: "", password: "" });
