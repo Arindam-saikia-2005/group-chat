@@ -57,7 +57,7 @@ export const login = async (req: Request, res: Response) => {
 
 export const me = async (req: Request, res: Response) => {
   try {
-    const user = await User.findById(req.user?.id).select("-password");
+    const user = await User.findById(req.user?.id).select("-password").populate("profilePic");
     res.json(user)
   } catch (error: any) {
     console.error(console.error);
