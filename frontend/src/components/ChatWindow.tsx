@@ -24,11 +24,11 @@ export interface IGroup {
   admins: string[];
   members: IMember[];
   groupDp: string;
-  createdBy:string;
+  createdBy: string;
 }
 
 export interface IMember {
-  _id:string;
+  _id: string;
   name: string;
   profilePic: string;
 }
@@ -38,10 +38,16 @@ interface ITypingUser {
   username: string;
 }
 
-export default function ChatWindow({ group,setSelectedGroup }: { group: IGroup | null,setSelectedGroup:React.Dispatch<React.SetStateAction<IGroup | null>>; }) {
+export default function ChatWindow({
+  group,
+  setSelectedGroup,
+}: {
+  group: IGroup | null;
+  setSelectedGroup: React.Dispatch<React.SetStateAction<IGroup | null>>;
+}) {
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [typingUsers, setTypingUsers] = useState<ITypingUser[]>([]);
-  const [openModel,setOpenModel] = useState<Boolean>(false)
+  const [openModel, setOpenModel] = useState<Boolean>(false);
 
   const token = localStorage.getItem("token");
 
@@ -85,6 +91,23 @@ export default function ChatWindow({ group,setSelectedGroup }: { group: IGroup |
       setMessages(res.data);
     } catch (error: any) {
       console.error(error?.message || error);
+    }
+  }
+
+  async function leaveTheGroup() {
+    try {
+      const groupId = group?._id;
+      if (!groupId) return;
+      await axios.patch(`http://localhost:8000/api/group/leave/${group._id}`,{},{
+        headers:{
+          Authorization:`Bearer ${token}`
+        }
+      })
+      socket.emit("leave_group", group?._id);
+      toast.success("leaving group successfully");
+    } catch (err: any) {
+      console.error(err.message);
+      toast.error("Failed to leave the group");
     }
   }
 
@@ -170,17 +193,30 @@ export default function ChatWindow({ group,setSelectedGroup }: { group: IGroup |
     );
   }
 
-  console.log("typingUsers", typingUsers);
-
   return (
     <div className="flex flex-col flex-1">
       {/* chat header */}
 
-      <div onClick={()=>setOpenModel(!openModel)} className="flex items-center gap-3 px-5 py-3 bg-[#202c33] border-b border-gray-700">
+      <div
+        onClick={() => setOpenModel(!openModel)}
+        className="flex items-center gap-3 px-5 py-3 bg-[#202c33] border-b border-gray-700"
+      >
         <img src={group.groupDp} className="w-10 h-10 rounded-full" />
 
-        <div>
-          <p className="text-white font-bold">{group.name}</p>
+        <div className="w-full">
+          <div className="flex justify-between items-center">
+            <p className="text-white font-bold">{group.name}</p>
+
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                leaveTheGroup();
+              }}
+              className="text-xs px-4 py-1 rounded-md bg-red-500 hover:bg-red-600 font-semibold"
+            >
+              Leave
+            </button>
+          </div>
 
           <div className="flex gap-2 flex-wrap">
             {group.members.map((m: IMember, i: number) => (
@@ -189,6 +225,7 @@ export default function ChatWindow({ group,setSelectedGroup }: { group: IGroup |
               </span>
             ))}
           </div>
+
           <div className="flex items-center gap-2 text-gray-400 text-sm px-5">
             <span>{typingUsers.map((u) => u.username).join(", ")}</span>
             {typingUsers.length > 0 && (
@@ -200,11 +237,15 @@ export default function ChatWindow({ group,setSelectedGroup }: { group: IGroup |
             )}
           </div>
         </div>
-      </div> 
+      </div>
 
-      {
-        openModel && <SmallMessage group={group} setGroup={setSelectedGroup} setOpenModel={setOpenModel}/>
-      } 
+      {openModel && (
+        <SmallMessage
+          group={group}
+          setGroup={setSelectedGroup}
+          setOpenModel={setOpenModel}
+        />
+      )}
 
       {/* messages */}
 

@@ -52,7 +52,7 @@ export default function UploadProfile({ close }: Props) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/40">
       {/* modal */}
-      <div className="bg-[#202c33] text-white w-[350px] rounded-2xl shadow-lg p-6 relative space-y-4">
+      <div className="bg-[#202c33] text-white w-87.5 rounded-2xl shadow-lg p-6 relative space-y-4">
 
         {/* close button */}
         <button

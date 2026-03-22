@@ -2,7 +2,15 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { IoMdClose } from "react-icons/io";
 import type { IGroup } from "./ChatWindow";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { IoMdPersonAdd } from "react-icons/io";
+import AddUserModal from "./AddUserModal";
+
+interface IUser {
+  _id: string;
+  name: string;
+  profilePic: string;
+}
 
 export default function SmallMessage({
   group,
@@ -13,6 +21,8 @@ export default function SmallMessage({
   setOpenModel: (val: boolean) => void;
   setGroup: React.Dispatch<React.SetStateAction<IGroup | null>>;
 }) {
+  const [users, setUsers] = useState<IUser[]>([]);
+  const [openUserModal, setOpenUserModal] = useState<boolean>(false);
   const [loadingUserId, setLoadingUserId] = useState<string | null>(null);
   const token = localStorage.getItem("token");
 
@@ -82,6 +92,44 @@ export default function SmallMessage({
     }
   }
 
+  async function addMembers(userId: string) {
+    try {
+      if (!group?._id) return;
+      const res = await axios.post(
+        `http://localhost:8000/api/group/${group?._id}/members`,
+        { userId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      setGroup(res.data.group);
+      toast.success("Member added successfully!");
+    } catch (err: any) {
+      console.error(err.message);
+      toast.error("Failed to add member");
+    }
+  }
+
+  async function fetchUsers() {
+    try {
+      const res = await axios.get("http://localhost:8000/api/user", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setUsers(res.data.users);
+    } catch (err: any) {
+      console.error(err.message);
+    }
+  }
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50">
       {/* 🔹 Background Blur */}
@@ -91,25 +139,34 @@ export default function SmallMessage({
       />
 
       {/* 🔹 Modal */}
-      <div className="relative bg-[#1f2937] text-white w-[350px] max-h-[300px] rounded-xl shadow-lg p-4 animate-fadeIn">
+      <div className="relative bg-[#1f2937] text-white w-87.5 max-h-96 rounded-xl shadow-lg p-4 animate-fadeIn">
         {/* Header */}
         <div className="flex justify-between items-center mb-3">
-          <h2 className="text-md font-semibold">Members</h2>
+          <div className="flex w-full justify-between">
+            <h2 className="text-md font-semibold">Members</h2>
+            <span className="mr-3">
+              <IoMdPersonAdd onClick={() => setOpenUserModal(true)} size={20} />
+            </span>
+          </div>
           <IoMdClose
             size={18}
-            className="cursor-pointer hover:text-gray-400"
+            className="cursor-pointer bg-red-500 rounded-md"
             onClick={() => setOpenModel(false)}
           />
         </div>
 
         {/* Members */}
-        <div className="space-y-2 overflow-y-auto max-h-[220px] custom-scroll">
+        <div
+          className={`space-y-2 overflow-y-auto max-h-55 custom-scroll ${
+            openUserModal ? "blur-sm pointer-events-none" : ""
+          }`}
+        >
           {group?.members.map((m) => {
             const isAdmin =
               group.admins.some((admin: any) => admin._id === m._id) ||
               group.createdBy === m._id;
 
-              const isOwner =  group.createdBy === m._id;
+            const isOwner = group.createdBy === m._id;
 
             return (
               <div
@@ -133,14 +190,14 @@ export default function SmallMessage({
                 {/* Right */}
                 <div className="flex gap-1">
                   {isOwner ? (
-                    <span className="text-[10px] bg-purple-600 px-2 py-[2px] rounded">
+                    <span className="text-[10px] bg-purple-600 px-2 py-0.5 rounded">
                       Owner
                     </span>
                   ) : isAdmin ? (
                     <button
                       onClick={() => demoteAdmin(m._id)}
                       disabled={loadingUserId === m._id}
-                      className="text-[10px] bg-yellow-500 text-black px-2 py-[2px] rounded disabled:opacity-50"
+                      className="text-[10px] bg-yellow-500 text-black px-2 py-0.5 rounded disabled:opacity-50"
                     >
                       {loadingUserId === m._id ? "..." : "Demote"}
                     </button>
@@ -148,7 +205,7 @@ export default function SmallMessage({
                     <button
                       onClick={() => promoteAdmin(m._id)}
                       disabled={loadingUserId === m._id}
-                      className="text-[10px] bg-blue-600 px-2 py-[2px] rounded disabled:opacity-50"
+                      className="text-[10px] bg-blue-600 px-2 py-0.5 rounded disabled:opacity-50"
                     >
                       {loadingUserId === m._id ? "..." : "Promote"}
                     </button>
@@ -158,7 +215,7 @@ export default function SmallMessage({
                     <button
                       onClick={() => removeAnUser(m._id)}
                       disabled={loadingUserId === m._id}
-                      className="text-[10px] bg-red-600 px-2 py-[2px] rounded disabled:opacity-50"
+                      className="text-[10px] bg-red-600 px-2 py-0.5 rounded disabled:opacity-50"
                     >
                       {loadingUserId === m._id ? "..." : "Remove"}
                     </button>
@@ -168,6 +225,15 @@ export default function SmallMessage({
             );
           })}
         </div>
+
+        {openUserModal && (
+          <AddUserModal
+            users={users}
+            group={group}
+            addMembers={addMembers}
+            closeModal={() => setOpenUserModal(false)}
+          />
+        )}
       </div>
     </div>
   );
