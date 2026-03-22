@@ -38,26 +38,28 @@ export default function Login({setToken}:LoginProps) {
   };
 
   return (
-    <div className="mx-auto bg-red-500">
+    <div className="mx-auto  h-screen flex items-center justify-center">
       <form onSubmit={handleSubmit}>
-        <div>
-          <input
+        <div className="bg-[#202c33] space-y-4 p-8 flex flex-col w-96 border rounded-md border-gray-500">
+          <input 
+             className="border border-gray-300 rounded-md py-2"
             type="email"
             name="email"
             value={formData.email}
             onChange={handleOnChange}
-            placeholder="Enter your email..."
+            placeholder=" email..."
           />
           <input
+            className="border border-gray-300 rounded-md py-2"
             type="password"
             name="password"
             value={formData.password}
             onChange={handleOnChange}
-            placeholder="Enter your password..."
+            placeholder=" password..."
           />
+        <button className="text-sm px-4 py-2 bg-blue-400 rounded-md" type="submit">Login</button>
         </div>
-        <button type="submit">Login</button>
-        <p className="text-blue-600 text-sm px-4 py-3">Don't have an account ? <span className="text-sm text-blue-600"><NavLink to="/register">register</NavLink></span></p>
+        <p className="text-gray-400 font-semibold text-sm px-4 py-3 text-center">Don't have an account ? <span className="text-sm text-blue-600"><NavLink to="/register">register</NavLink></span></p>
       </form>
     </div>
   );

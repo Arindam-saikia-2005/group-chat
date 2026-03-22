@@ -39,28 +39,31 @@ export default function SignUp({setToken} : SignUpProps) {
   };
 
   return (
-    <div className="mx-auto">
+    <div className="mx-auto h-screen flex items-center justify-center">
       <form onSubmit={handleSubmit}>
-        <div className="flex justify-center">
+        <div className="bg-[#202c33] space-y-4 p-8 flex flex-col w-96 border rounded-md border-gray-500  justify-center">
           <input
+          className="border border-gray-300 rounded-md py-2"
           type="text"
           name="name"
           value={formData.name}
-          placeholder="Enter your name"
+          placeholder=" Name.."
           onChange={handleOnChage}
           />
           <input
+          className="border border-gray-300 rounded-md py-2"
             type="email"
             name="email"
             value={formData.email}
-            placeholder="Enter your email..."
+            placeholder=" Email..."
             onChange={handleOnChage}
           />
           <input
+          className="border border-gray-300 rounded-md py-2"
             type="password"
             name="password"
             value={formData.password}
-            placeholder="Enter your password..."
+            placeholder=" Password..."
             onChange={handleOnChage}
           />
           <button
@@ -69,7 +72,7 @@ export default function SignUp({setToken} : SignUpProps) {
           >
             SignUp
           </button>
-          <p className="text-sm ">
+          <p className="text-sm text-center font-semibold">
             Already have an account ?{" "}
             <span className="text-blue-600 text-sm">Login</span>
           </p>

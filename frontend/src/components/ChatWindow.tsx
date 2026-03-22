@@ -98,11 +98,12 @@ export default function ChatWindow({
     try {
       const groupId = group?._id;
       if (!groupId) return;
-      await axios.patch(`http://localhost:8000/api/group/leave/${group._id}`,{},{
+     const res = await axios.patch(`http://localhost:8000/api/group/leave/${group._id}`,{},{
         headers:{
           Authorization:`Bearer ${token}`
         }
       })
+      setSelectedGroup(res.data.group)
       socket.emit("leave_group", group?._id);
       toast.success("leaving group successfully");
     } catch (err: any) {
