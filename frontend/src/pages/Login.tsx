@@ -21,7 +21,7 @@ export default function Login({setToken}:LoginProps) {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:8000/api/auth/login", formData);
+      const res = await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/auth/login`, formData);
       const token = res.data.token;
       if (token) {
         localStorage.setItem("token", token);
@@ -40,6 +40,7 @@ export default function Login({setToken}:LoginProps) {
   return (
     <div className="mx-auto  h-screen flex items-center justify-center">
       <form onSubmit={handleSubmit}>
+        <p className="text-white font-semibold text-2xl text-center">Login</p>
         <div className="bg-[#202c33] space-y-4 p-8 flex flex-col w-96 border rounded-md border-gray-500">
           <input 
              className="border border-gray-300 rounded-md py-2"

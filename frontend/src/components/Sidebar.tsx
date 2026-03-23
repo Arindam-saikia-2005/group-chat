@@ -9,6 +9,14 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import UploadProfile from "./UploadProfile";
 
+interface IGroup {
+  _id: string;
+  name: string;
+  groupDp:string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 interface IUser {
   profilePic: string;
 }
@@ -20,15 +28,17 @@ interface PropsType {
 
 export default function Sidebar({ selectedGroup, setToken }: PropsType) {
   const [openCreateGroup, setOpenCreateGroup] = useState(false);
+  const [groups, setGroups] = useState<IGroup[]>([]);
+  const [search, setSearch] = useState("");
   const [openProfile, setOpenProfile] = useState(false);
   const [user, setUser] = useState<IUser | null>();
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-
+  
   async function getUser() {
     try {
       await axios
-        .get("http://localhost:8000/api/auth/me", {
+        .get(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/auth/me`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -39,6 +49,16 @@ export default function Sidebar({ selectedGroup, setToken }: PropsType) {
     }
   }
 
+  const getAllGroups = async () => {
+    await axios
+      .get(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/group`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((res) => setGroups(res.data));
+  };
+
   function logout() {
     localStorage.clear();
     setToken(null);
@@ -47,7 +67,13 @@ export default function Sidebar({ selectedGroup, setToken }: PropsType) {
 
   useEffect(() => {
     getUser();
+    getAllGroups();
   }, []);
+
+
+  const filteredGroups = groups.filter((group) =>
+    group.name.toLowerCase().includes(search.toLowerCase()),
+  );
 
   return (
     <div className="w-87.5 bg-[#111b21] flex flex-col border-r border-gray-700">
@@ -84,6 +110,8 @@ export default function Sidebar({ selectedGroup, setToken }: PropsType) {
         <div className="flex items-center gap-3 bg-[#202c33] px-4 py-2 rounded-lg">
           <IoIosSearch className="text-gray-400" />
           <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
             placeholder="Search groups"
             className="bg-transparent outline-none text-white text-sm w-full"
           />
@@ -91,7 +119,7 @@ export default function Sidebar({ selectedGroup, setToken }: PropsType) {
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        <GroupItem selectedGroup={selectedGroup} />
+        <GroupItem selectedGroup={selectedGroup} groups={filteredGroups} />
       </div>
 
       {openCreateGroup && (

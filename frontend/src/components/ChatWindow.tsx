@@ -61,7 +61,7 @@ export default function ChatWindow({
   async function deleteMessage(messageId: string) {
     if (!group) return;
     try {
-      await axios.delete(`http://localhost:8000/api/message/${messageId}`, {
+      await axios.delete(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/message/${messageId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -81,7 +81,7 @@ export default function ChatWindow({
     if (!group) return;
     try {
       const res = await axios.get(
-        `http://localhost:8000/api/message/${group._id}`,
+        `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/message/${group._id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -98,12 +98,16 @@ export default function ChatWindow({
     try {
       const groupId = group?._id;
       if (!groupId) return;
-     const res = await axios.patch(`http://localhost:8000/api/group/leave/${group._id}`,{},{
-        headers:{
-          Authorization:`Bearer ${token}`
-        }
-      })
-      setSelectedGroup(res.data.group)
+      const res = await axios.patch(
+        `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/group/leave/${group._id}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      setSelectedGroup(res.data.group);
       socket.emit("leave_group", group?._id);
       toast.success("leaving group successfully");
     } catch (err: any) {
@@ -220,11 +224,11 @@ export default function ChatWindow({
           </div>
 
           <div className="flex gap-2 flex-wrap">
-            {group.members.map((m: IMember, i: number) => (
-              <span key={i} className="text-gray-400 text-xs">
-                {m.name}
-              </span>
-            ))}
+            {group.members
+              .slice(0, 4)
+              .map((m: IMember) => m.name)
+              .join(", ")}
+            {group.members.length > 5 && " ....."}
           </div>
 
           <div className="flex items-center gap-2 text-gray-400 text-sm px-5">

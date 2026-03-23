@@ -17,7 +17,7 @@ export default function UploadProfile({ close }: Props) {
 
     try {
       await axios.patch(
-        "http://localhost:8000/api/user/update-profile",
+        `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/user/update-profile`,
         { profilePic, name },
         {
           headers: {
