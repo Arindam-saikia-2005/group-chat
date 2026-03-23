@@ -32,6 +32,7 @@ export default function Sidebar({ selectedGroup, setToken }: PropsType) {
   const [search, setSearch] = useState("");
   const [openProfile, setOpenProfile] = useState(false);
   const [user, setUser] = useState<IUser | null>();
+  const[loading,setLoading] = useState(true);
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
   
@@ -50,13 +51,19 @@ export default function Sidebar({ selectedGroup, setToken }: PropsType) {
   }
 
   const getAllGroups = async () => {
-    await axios
-      .get(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/group`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then((res) => setGroups(res.data));
+    try {
+      await axios
+        .get(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/group`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then((res) => setGroups(res.data));
+    } catch (err:any) {
+     console.error(err.message);
+    } finally {
+    setLoading(false)
+    }
   };
 
   function logout() {
@@ -119,7 +126,7 @@ export default function Sidebar({ selectedGroup, setToken }: PropsType) {
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        <GroupItem selectedGroup={selectedGroup} groups={filteredGroups} />
+        <GroupItem loading={loading} selectedGroup={selectedGroup} groups={filteredGroups} />
       </div>
 
       {openCreateGroup && (
