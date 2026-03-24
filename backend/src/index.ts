@@ -63,6 +63,10 @@ export const initilizeSocket = async (server: HTTPServer) => {
 
     registerChatHandlers(io, socket)
 
+    socket.on("request_online_users", async () => {
+      socket.emit("online_users", await getOnelineUsers());
+    });
+
     socket.on("disconnect", async () => {
       await User.findByIdAndUpdate(user._id, {
         isOnline: false,
@@ -86,8 +90,8 @@ dbConnect()
 
 initilizeSocket(server)
 
-const getOnelineUsers = async (): Promise<string[]> => {
-  const users = await User.find({ isOnline: true }).select("_id")
+export const getOnelineUsers = async (): Promise<string[]> => {
+  const users = await User.find({ isOnline: true })
   return users.map((u) => u._id.toString());
 }
 

@@ -2,6 +2,7 @@ import { Server, Socket } from "socket.io"
 import type { clientToServerEvents, serverToClientEvents } from "./types.js"
 import { Group } from "../model/group.model.js";
 import { Message } from "../model/message.model.js";
+import { getOnelineUsers } from "../index.js";
 
 export const registerChatHandlers = (io: Server<clientToServerEvents, serverToClientEvents>, socket: Socket<clientToServerEvents, serverToClientEvents>) => {
     const user = socket.data.user;
@@ -64,6 +65,12 @@ export const registerChatHandlers = (io: Server<clientToServerEvents, serverToCl
         groupId,
       });
     });
+
+    socket.on("request_online_users", async () => {
+  socket.emit("online_users", await getOnelineUsers());
+});
+
+
 
     // Mark as read
     socket.on("mark_read",async({messageId}) => {

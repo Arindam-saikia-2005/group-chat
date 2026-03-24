@@ -20,4 +20,5 @@ export interface clientToServerEvents {
     stop_typing: (groupId: string) => void;
     mark_read: (data: { groupId: string; messageId: string }) => void;
     delete_message:(data:{messageId:string; groupId:string}) => void;
+    request_online_users: () => void;
 }

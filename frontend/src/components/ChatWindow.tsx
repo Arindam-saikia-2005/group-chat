@@ -231,16 +231,19 @@ export default function ChatWindow({
             {group.members.length > 5 && " ....."}
           </div>
 
+        {/* showing who is typing */}
           <div className="flex items-center gap-2 text-gray-400 text-sm px-5">
             <span>{typingUsers.map((u) => u.username).join(", ")}</span>
             {typingUsers.length > 0 && (
               <div className="flex gap-1">
+                <p className="text-gray-300 ">is typing</p>
                 <span className="animate-bounce">.</span>
                 <span className="animate-bounce delay-100">.</span>
                 <span className="animate-bounce delay-200">.</span>
               </div>
             )}
           </div>
+
         </div>
       </div>
 

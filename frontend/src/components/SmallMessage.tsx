@@ -5,6 +5,7 @@ import type { IGroup } from "./ChatWindow";
 import { useEffect, useState } from "react";
 import { IoMdPersonAdd } from "react-icons/io";
 import AddUserModal from "./AddUserModal";
+import { socket } from "../socket/socket";
 
 interface IUser {
   _id: string;
@@ -24,6 +25,7 @@ export default function SmallMessage({
   const [users, setUsers] = useState<IUser[]>([]);
   const [openUserModal, setOpenUserModal] = useState<boolean>(false);
   const [loadingUserId, setLoadingUserId] = useState<string | null>(null);
+  const [isOnline, setIsOnline] = useState<string[]>([]);
   const token = localStorage.getItem("token");
 
   async function promoteAdmin(userId: string) {
@@ -114,12 +116,14 @@ export default function SmallMessage({
 
   async function fetchUsers() {
     try {
-      const res = await axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/user`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const res = await axios.get(
+        `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/user`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
-      });
-
+      );
       setUsers(res.data.users);
     } catch (err: any) {
       console.error(err.message);
@@ -130,6 +134,23 @@ export default function SmallMessage({
     fetchUsers();
   }, []);
 
+  useEffect(() => {
+    const handleOnlineUsers = (users: string[]) => {
+      console.log("ONLINE USERS:", users);
+      setIsOnline(users);
+    };
+
+    socket.on("online_users", handleOnlineUsers);
+    socket.emit("request_online_users");
+
+    return () => {
+      socket.off("online_users", handleOnlineUsers);
+    };
+  }, []);
+
+  const isUserOnline = (id: string) => isOnline.includes(id.toString());
+
+  console.log("ONLINE:", isOnline);
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50">
       {/* 🔹 Background Blur */}
@@ -179,7 +200,9 @@ export default function SmallMessage({
                     src={m.profilePic || "./default-img.jpg"}
                     className="w-8 h-8 rounded-full object-cover"
                   />
-                  <p className="text-sm">{m.name}</p>
+                  <p className={`text-sm`}>
+                    {m.name} {isUserOnline(m._id.toString()) && <span>🟢</span>}
+                  </p>
                   {isAdmin && (
                     <span className="text-[9px] bg-yellow-500 text-black px-1 ml-1 rounded">
                       Admin

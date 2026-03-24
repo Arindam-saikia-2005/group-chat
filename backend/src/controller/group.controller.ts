@@ -271,3 +271,12 @@ export const deleteGroup = async (req: Request, res: Response) => {
     }
 }
 
+export const searchGroups = async(req:Request,res:Response) => {
+    try {
+
+    } catch(err:any) {
+        console.error("Error while searching grops",err.message);
+        res.status(500).json({message:"Internal server error"})
+    }
+}
+
