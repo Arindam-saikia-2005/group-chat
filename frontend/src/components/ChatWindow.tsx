@@ -132,11 +132,6 @@ export default function ChatWindow({
 
   useEffect(() => {
     if (group?._id) {
-      // const handleMessage = (msg: IMessage) => {
-      //   if (msg.group === group._id) {
-      //     setMessages((prev) => [...prev, msg]);
-      //   }
-      // };
 
       socket.on("receive_message", getMessages);
 
@@ -257,7 +252,7 @@ export default function ChatWindow({
 
       {/* messages */}
 
-      <div className="flex-1 p-5 overflow-y-auto bg-[#0b141a] space-y-3">
+      <div className="flex-1 p-5 overflow-y-auto custom-scroll bg-[#0b141a] space-y-3">
         {messages.map((msg) => {
           return (
             <div
