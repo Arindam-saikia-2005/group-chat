@@ -66,9 +66,6 @@ export const registerChatHandlers = (io: Server<clientToServerEvents, serverToCl
       });
     });
 
-    socket.on("request_online_users", async () => {
-  socket.emit("online_users", await getOnelineUsers());
-});
 
 
 

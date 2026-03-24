@@ -14,7 +14,6 @@ export default function MessageInput({ groupId }: { groupId: string }) {
     username = decoded?.name ?? "Anonymous";
   }
 
-  console.log("username:", username);
 
   const sendMessage = () => {
     if (!message.trim()) return;

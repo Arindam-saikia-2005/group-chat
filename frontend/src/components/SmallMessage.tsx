@@ -136,7 +136,6 @@ export default function SmallMessage({
 
   useEffect(() => {
     const handleOnlineUsers = (users: string[]) => {
-      console.log("ONLINE USERS:", users);
       setIsOnline(users);
     };
 
@@ -149,8 +148,7 @@ export default function SmallMessage({
   }, []);
 
   const isUserOnline = (id: string) => isOnline.includes(id.toString());
-
-  console.log("ONLINE:", isOnline);
+  
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50">
       {/* 🔹 Background Blur */}
