@@ -14,7 +14,7 @@ import { dbConnect } from "./config/db.js";
 import jwt from "jsonwebtoken"
 import cors from "cors"
 
-const port = process.env.PORT || 3000;
+const port = Number(process.env.PORT) || 3000;
 const app = express();
 const server = http.createServer(app)
 
@@ -23,7 +23,10 @@ app.use(express.json());
 app.use(express.urlencoded({
   extended: true
 }))
-app.use(cors())
+app.use(cors({
+  origin: process.env.CLIENT_URL,
+  credentials: true
+}))
 
 
 export const initilizeSocket = async (server: HTTPServer) => {
@@ -94,6 +97,6 @@ export const getOnelineUsers = async (): Promise<string[]> => {
   return users.map((u) => u._id.toString());
 }
 
-server.listen(port, () => {
-  console.log(`Server is started at port ${port}`)
-})
+server.listen(port, "0.0.0.0", () => {
+  console.log(`Server running on port ${port}`);
+});
