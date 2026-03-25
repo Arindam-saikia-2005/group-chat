@@ -30,7 +30,7 @@ export default function AddUserModal({
           </button>
         </div>
 
-        <div className="overflow-y-auto max-h-40 space-y-1">
+        <div className="overflow-y-auto max-h-40 space-y-1 custom-scroll">
           {users.map((u) => {
             const alreadyMember = group?.members.some(
               (m) => m._id === u._id
