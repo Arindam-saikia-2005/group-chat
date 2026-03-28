@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { Group } from "../model/group.model.js";
 import { Types } from "mongoose";
+import { v2 as cloudinary } from "cloudinary"
 
 
 export const createGroup = async (req: Request, res: Response) => {
@@ -52,20 +53,35 @@ export const getGroupById = async (req: Request, res: Response) => {
     }
 }
 
-export const updateGroupName = async (req: Request, res: Response) => {
+export const updateGroupDetails = async (req: Request, res: Response) => {
     try {
         const groupId = req.params.groupId as string;
+        const {name,groupDp} = req.body;
         const group = await Group.findById(groupId)
         if (!group) return res.status(400).json({ msg: "Group not found" });
 
-        if (!group.admins.includes(new Types.ObjectId(req.user?.id))) {
-            return res.status(403).json({ msg: "Only admin can update" })
+
+        const isAdmin = group.admins.some((adminId) =>
+            adminId.equals(req.user?.id)
+        );
+
+        if (!isAdmin) {
+            return res.status(403).json({ msg: "Only admin can update" });
+        }
+        let dpUrl = group.groupDp;
+
+        if (groupDp) {
+            const uploadResponse = await cloudinary.uploader.upload(groupDp)
+            dpUrl = uploadResponse.secure_url;
         }
 
-        group.name = req.body.name
-        await group.save();
+        group.name = name || group.name;
+        group.groupDp = dpUrl as string;
 
-        res.json(group)
+        await group.save()
+
+
+        return res.json(group)
 
     } catch (err: any) {
         console.error("Error while changing the group name", err.message);
@@ -221,26 +237,26 @@ export const leaveGroup = async (req: Request, res: Response) => {
     try {
         const groupId = req.params.groupId;
         const userId = req.user?.id;
-        if(!userId) {
-            return res.status(403).json({msg:"Unauthorized"})
+        if (!userId) {
+            return res.status(403).json({ msg: "Unauthorized" })
         }
         const group = await Group.findById(groupId);
         if (!group) {
             return res.status(404).json({ err: "Group not found!" });
         }
-        if(!group.members.includes(new Types.ObjectId(userId))){
-            return res.status(400).json({message:"User not in the group"})
+        if (!group.members.includes(new Types.ObjectId(userId))) {
+            return res.status(400).json({ message: "User not in the group" })
         }
 
         group.members.pull(userId);
         group.admins.pull(userId);
 
-        if(group.admins.length === 0 && group.members.length >0) {
+        if (group.admins.length === 0 && group.members.length > 0) {
             group.admins.push(group.members[0])
         };
         await group.save();
 
-        res.status(200).json({ success: true,message:"Left group successfully" })
+        res.status(200).json({ success: true, message: "Left group successfully" })
     } catch (error: any) {
         console.error("Error while leaving the group", error.message);
         res.status(500).json({ message: "Internal server error" })
@@ -271,12 +287,5 @@ export const deleteGroup = async (req: Request, res: Response) => {
     }
 }
 
-export const searchGroups = async(req:Request,res:Response) => {
-    try {
 
-    } catch(err:any) {
-        console.error("Error while searching grops",err.message);
-        res.status(500).json({message:"Internal server error"})
-    }
-}
 

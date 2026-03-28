@@ -3,26 +3,6 @@ import { User } from "../model/user.model.js";
 import { v2 as cloudinary } from "cloudinary"
 
 
-// export const searchUsers = async (req: Request, res: Response) => {
-//   try {
-//     const keywordFilter = req.query.q ? {
-//       $or: [
-//         { name: { $regex: req.query.q as string, $options: "i" } },
-//         { email: { $regex: req.query.q as string, $options: "i" } }
-//       ]
-//     } : {};
-
-//     const users = await User.find({
-//       ...keywordFilter,
-//       _id: { $ne: req.user?.id as string }
-//     }).select("name email")
-
-//     res.json({ users })
-//   } catch (error: any) {
-//     console.error(error.message);
-//     res.status(500).json({ msg: "Internal server error" })
-//   }
-// }
 
 
 export const getUserById = async (req: Request, res: Response) => {
