@@ -1,12 +1,12 @@
 import axios from "axios";
 import toast from "react-hot-toast";
 import { IoMdClose } from "react-icons/io";
-import type { IGroup } from "./ChatWindow";
 import { useEffect, useState } from "react";
 import { IoMdPersonAdd } from "react-icons/io";
 import AddUserModal from "./AddUserModal";
 import { socket } from "../socket/socket";
 import { jwtDecode } from "jwt-decode";
+import type { IGroup } from "./ChatWindow";
 
 interface IUser {
   _id: string;
