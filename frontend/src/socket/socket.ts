@@ -2,7 +2,7 @@ import {io,Socket} from "socket.io-client";
 import type { ClientToServerEvents, ServerToClientEvents } from "../types/socket.types";
 
 
-const URL = `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}`
+const URL = `${import.meta.env.VITE_SOCKET_URL}`
 export const socket:Socket<ServerToClientEvents,ClientToServerEvents>= io(URL,{
     autoConnect:false,
     withCredentials:true,

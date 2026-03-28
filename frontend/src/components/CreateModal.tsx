@@ -22,7 +22,7 @@ export default function CreateGroupModal({ close }: Props) {
   const createGroup = async () => {
     try {
       await axios.post(
-        `{import.meta.env.VITE_REACT_APP_BACKEND_URL}/group/create`,
+        `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/api/group/create`,
         { name, members: selectedMembers, groupDp: Dp },
         {
           headers: {
@@ -39,7 +39,7 @@ export default function CreateGroupModal({ close }: Props) {
 
   const allUsers = async () => {
     await axios
-      .get(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/user`, {
+      .get(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/api/user`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

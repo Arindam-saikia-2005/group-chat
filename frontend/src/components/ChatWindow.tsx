@@ -64,7 +64,7 @@ export default function ChatWindow({
     if (!group) return;
     try {
       await axios.delete(
-        `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/message/${messageId}`,
+        `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/api/message/${messageId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -86,7 +86,7 @@ export default function ChatWindow({
     if (!group) return;
     try {
       const res = await axios.get(
-        `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/message/${group._id}`,
+        `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/api/message/${group._id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -104,7 +104,7 @@ export default function ChatWindow({
       const groupId = group?._id;
       if (!groupId) return;
       const res = await axios.patch(
-        `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/group/leave/${group._id}`,
+        `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/api/group/leave/${group._id}`,
         {},
         {
           headers: {

@@ -19,7 +19,7 @@ function ChangeGroupDetails({ close,group }: props) {
 
     try {
      await axios.patch(
-        `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/group/${group?._id}/change-details`,
+        `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/api/group/${group?._id}/change-details`,
         { name, groupDp },
         {
           headers: {

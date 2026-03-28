@@ -28,7 +28,7 @@ export default function SignUp({ setToken }: SignUpProps) {
     e.preventDefault();
     try {
       const res = await axios.post(
-        `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/auth/register`,
+        `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/api/auth/register`,
         formData,
       );
       const token = res.data.token;

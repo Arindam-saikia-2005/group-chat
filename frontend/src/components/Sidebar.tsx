@@ -39,7 +39,7 @@ export default function Sidebar({ selectedGroup, setToken }: PropsType) {
   async function getUser() {
     try {
       await axios
-        .get(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/auth/me`, {
+        .get(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/api/auth/me`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -53,7 +53,7 @@ export default function Sidebar({ selectedGroup, setToken }: PropsType) {
   const getAllGroups = async () => {
     try {
       await axios
-        .get(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/group`, {
+        .get(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/api/group`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

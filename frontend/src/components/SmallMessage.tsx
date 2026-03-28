@@ -48,7 +48,7 @@ export default function SmallMessage({
     setLoadingUserId(userId);
     try {
       const res = await axios.patch(
-        `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/group/${group._id}/promote-admin`,
+        `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/api/group/${group._id}/promote-admin`,
         { userId },
         {
           headers: {
@@ -71,7 +71,7 @@ export default function SmallMessage({
     setLoadingUserId(userId);
     try {
       const res = await axios.patch(
-        `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/group/${group._id}/demote-admin`,
+        `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/api/group/${group._id}/demote-admin`,
         { userId },
         {
           headers: {
@@ -93,7 +93,7 @@ export default function SmallMessage({
     if (!group?._id) return;
     try {
       const res = await axios.delete(
-        `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/group/${group._id}/members/${userId}`,
+        `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/api/group/${group._id}/members/${userId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -112,7 +112,7 @@ export default function SmallMessage({
     try {
       if (!group?._id) return;
       const res = await axios.post(
-        `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/group/${group._id}/members`,
+        `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/api/group/${group._id}/members`,
         { userId },
         {
           headers: {
@@ -131,7 +131,7 @@ export default function SmallMessage({
   async function fetchUsers() {
     try {
       const res = await axios.get(
-        `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/user`,
+        `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/api/user`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
