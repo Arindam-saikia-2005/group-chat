@@ -2,32 +2,33 @@ import axios from "axios";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
 import { IoClose } from "react-icons/io5";
+import type { IGroup } from "./ChatWindow";
 
-interface Props {
+interface props {
   close: () => void;
+  group:IGroup |null;
 }
 
-export default function UploadProfile({ close }: Props) {
-  const [profilePic, setProfilePic] = useState<string | null>(null);
+function ChangeGroupDetails({ close,group }: props) {
   const [name, setName] = useState("");
+  const [groupDp, setGroupDp] = useState<string | null>(null);
   const token = localStorage.getItem("token");
 
-  const handleUploadImg = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleChangeGroupDetails = async(e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {
-      await axios.patch(
-        `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/user/update-profile`,
-        { profilePic, name },
+     await axios.patch(
+        `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/group/${group?._id}/change-details`,
+        { name, groupDp },
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
-
-      toast.success("Profile updated successfully");
-      close(); 
+      toast.success("Details updated successfully!");
+      close()
     } catch (err: any) {
       console.error(err.message);
       toast.error("Upload failed!");
@@ -42,7 +43,7 @@ export default function UploadProfile({ close }: Props) {
 
     reader.onload = () => {
       if (typeof reader.result === "string") {
-        setProfilePic(reader.result);
+        setGroupDp(reader.result);
       }
     };
 
@@ -53,7 +54,6 @@ export default function UploadProfile({ close }: Props) {
     <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/40">
       {/* modal */}
       <div className="bg-[#202c33] text-white w-87.5 rounded-2xl shadow-lg p-6 relative space-y-4">
-
         {/* close button */}
         <button
           onClick={close}
@@ -63,21 +63,19 @@ export default function UploadProfile({ close }: Props) {
         </button>
 
         {/* title */}
-        <h2 className="text-lg font-semibold text-center">
-          Edit Profile
-        </h2>
+        <h2 className="text-lg font-semibold text-center">Edit group Details</h2>
 
         {/* preview */}
         <div className="flex justify-center">
           <img
-            src={profilePic || "/default-img.jpg"}
+            src={groupDp || "/default-img.jpg"}
             alt="preview"
             className="h-20 w-20 rounded-full object-cover border border-gray-600"
           />
         </div>
 
         {/* form */}
-        <form onSubmit={handleUploadImg} className="space-y-3">
+        <form onSubmit={handleChangeGroupDetails} className="space-y-3">
           <input
             type="file"
             accept="image/*"
@@ -87,7 +85,7 @@ export default function UploadProfile({ close }: Props) {
 
           <input
             type="text"
-            placeholder="Enter new name"
+            placeholder="Enter new name..."
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="w-full px-3 py-2 rounded bg-[#111b21] outline-none border border-gray-600"
@@ -104,3 +102,5 @@ export default function UploadProfile({ close }: Props) {
     </div>
   );
 }
+
+export default ChangeGroupDetails;

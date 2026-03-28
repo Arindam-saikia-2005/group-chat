@@ -34,12 +34,11 @@ export default function SmallMessage({
 
   const token = localStorage.getItem("token");
 
-  // 🔹 Get current user id from token
   const currentUserId = token
     ? (jwtDecode<JwtPayload>(token)).id
     : null;
 
-  // 🔹 Check if current user is admin
+
   const isCurrentUserAdmin =
     group?.admins.some((admin: any) => admin._id === currentUserId) ||
     group?.createdBy === currentUserId;
