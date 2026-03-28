@@ -1,16 +1,21 @@
 import axios from "axios";
 import toast from "react-hot-toast";
 import { IoMdClose } from "react-icons/io";
-import type { IGroup } from "./ChatWindow";
 import { useEffect, useState } from "react";
 import { IoMdPersonAdd } from "react-icons/io";
 import AddUserModal from "./AddUserModal";
 import { socket } from "../socket/socket";
+import { jwtDecode } from "jwt-decode";
+import type { IGroup } from "./ChatWindow";
 
 interface IUser {
   _id: string;
   name: string;
   profilePic: string;
+}
+
+interface JwtPayload {
+  id: string;
 }
 
 export default function SmallMessage({
@@ -26,14 +31,24 @@ export default function SmallMessage({
   const [openUserModal, setOpenUserModal] = useState<boolean>(false);
   const [loadingUserId, setLoadingUserId] = useState<string | null>(null);
   const [isOnline, setIsOnline] = useState<string[]>([]);
+
   const token = localStorage.getItem("token");
+
+  const currentUserId = token
+    ? (jwtDecode<JwtPayload>(token)).id
+    : null;
+
+
+  const isCurrentUserAdmin =
+    group?.admins.some((admin: any) => admin._id === currentUserId) ||
+    group?.createdBy === currentUserId;
 
   async function promoteAdmin(userId: string) {
     if (!group?._id) return;
     setLoadingUserId(userId);
     try {
       const res = await axios.patch(
-        `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/group/${group?._id}/promote-admin`,
+        `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/group/${group._id}/promote-admin`,
         { userId },
         {
           headers: {
@@ -42,7 +57,7 @@ export default function SmallMessage({
         },
       );
       setGroup(res.data.group);
-      toast.success("user promoted successfully!");
+      toast.success("User promoted successfully!");
     } catch (err: any) {
       console.error(err.message);
       toast.error("Failed to promote user");
@@ -56,7 +71,7 @@ export default function SmallMessage({
     setLoadingUserId(userId);
     try {
       const res = await axios.patch(
-        `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/group/${group?._id}/demote-admin`,
+        `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/group/${group._id}/demote-admin`,
         { userId },
         {
           headers: {
@@ -65,8 +80,7 @@ export default function SmallMessage({
         },
       );
       setGroup(res.data.group);
-
-      toast.success("user demoted  successfully!");
+      toast.success("User demoted successfully!");
     } catch (err: any) {
       console.error(err.message);
       toast.error("Failed to demote user");
@@ -79,7 +93,7 @@ export default function SmallMessage({
     if (!group?._id) return;
     try {
       const res = await axios.delete(
-        `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/group/${group?._id}/members/${userId}`,
+        `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/group/${group._id}/members/${userId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -98,7 +112,7 @@ export default function SmallMessage({
     try {
       if (!group?._id) return;
       const res = await axios.post(
-        `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/group/${group?._id}/members`,
+        `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/group/${group._id}/members`,
         { userId },
         {
           headers: {
@@ -148,24 +162,29 @@ export default function SmallMessage({
   }, []);
 
   const isUserOnline = (id: string) => isOnline.includes(id.toString());
-  
+
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50">
-      {/* 🔹 Background Blur */}
+      {/* Background */}
       <div
         className="absolute inset-0 bg-black/30 backdrop-blur-sm"
         onClick={() => setOpenModel(false)}
       />
 
-      {/* 🔹 Modal */}
-      <div className="relative bg-[#1f2937] text-white w-87.5 max-h-96 rounded-xl shadow-lg p-4 animate-fadeIn">
+      {/* Modal */}
+      <div className="relative bg-[#1f2937] text-white w-87.5 max-h-96 rounded-xl shadow-lg p-4">
         {/* Header */}
         <div className="flex justify-between items-center mb-3">
           <div className="flex w-full justify-between">
             <h2 className="text-md font-semibold">Members</h2>
-            <span className="mr-3">
-              <IoMdPersonAdd onClick={() => setOpenUserModal(true)} size={20} />
-            </span>
+            {isCurrentUserAdmin && (
+              <span className="mr-3">
+                <IoMdPersonAdd
+                  onClick={() => setOpenUserModal(true)}
+                  size={20}
+                />
+              </span>
+            )}
           </div>
           <IoMdClose
             size={18}
@@ -190,7 +209,7 @@ export default function SmallMessage({
             return (
               <div
                 key={m._id}
-                className="flex justify-between items-center bg-[#374151] px-3 py-2 rounded-lg hover:bg-[#4b5563] transition"
+                className="flex justify-between items-center bg-[#374151] px-3 py-2 rounded-lg"
               >
                 {/* Left */}
                 <div className="flex items-center gap-2">
@@ -198,8 +217,8 @@ export default function SmallMessage({
                     src={m.profilePic || "./default-img.jpg"}
                     className="w-8 h-8 rounded-full object-cover"
                   />
-                  <p className={`text-sm`}>
-                    {m.name} {isUserOnline(m._id.toString()) && <span>🟢</span>}
+                  <p className="text-sm">
+                    {m.name} {isUserOnline(m._id) && <span>🟢</span>}
                   </p>
                   {isAdmin && (
                     <span className="text-[9px] bg-yellow-500 text-black px-1 ml-1 rounded">
@@ -208,45 +227,48 @@ export default function SmallMessage({
                   )}
                 </div>
 
-                {/* Right */}
-                <div className="flex gap-1">
-                  {isOwner ? (
-                    <span className="text-[10px] bg-purple-600 px-2 py-0.5 rounded">
-                      Owner
-                    </span>
-                  ) : isAdmin ? (
-                    <button
-                      onClick={() => demoteAdmin(m._id)}
-                      disabled={loadingUserId === m._id}
-                      className="text-[10px] bg-yellow-500 text-black px-2 py-0.5 rounded disabled:opacity-50"
-                    >
-                      {loadingUserId === m._id ? "..." : "Demote"}
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => promoteAdmin(m._id)}
-                      disabled={loadingUserId === m._id}
-                      className="text-[10px] bg-blue-600 px-2 py-0.5 rounded disabled:opacity-50"
-                    >
-                      {loadingUserId === m._id ? "..." : "Promote"}
-                    </button>
-                  )}
+                {/* Right Buttons (Only Admin Can See) */}
+                {isCurrentUserAdmin && (
+                  <div className="flex gap-1">
+                    {isOwner ? (
+                      <span className="text-[10px] bg-purple-600 px-2 py-0.5 rounded">
+                        Owner
+                      </span>
+                    ) : isAdmin ? (
+                      <button
+                        onClick={() => demoteAdmin(m._id)}
+                        disabled={loadingUserId === m._id}
+                        className="text-[10px] bg-yellow-500 text-black px-2 py-0.5 rounded"
+                      >
+                        {loadingUserId === m._id ? "..." : "Demote"}
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => promoteAdmin(m._id)}
+                        disabled={loadingUserId === m._id}
+                        className="text-[10px] bg-blue-600 px-2 py-0.5 rounded"
+                      >
+                        {loadingUserId === m._id ? "..." : "Promote"}
+                      </button>
+                    )}
 
-                  {!isOwner && (
-                    <button
-                      onClick={() => removeAnUser(m._id)}
-                      disabled={loadingUserId === m._id}
-                      className="text-[10px] bg-red-600 px-2 py-0.5 rounded disabled:opacity-50"
-                    >
-                      {loadingUserId === m._id ? "..." : "Remove"}
-                    </button>
-                  )}
-                </div>
+                    {!isOwner && (
+                      <button
+                        onClick={() => removeAnUser(m._id)}
+                        disabled={loadingUserId === m._id}
+                        className="text-[10px] bg-red-600 px-2 py-0.5 rounded"
+                      >
+                        {loadingUserId === m._id ? "..." : "Remove"}
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
             );
           })}
         </div>
 
+        {/* Add User Modal */}
         {openUserModal && (
           <AddUserModal
             users={users}

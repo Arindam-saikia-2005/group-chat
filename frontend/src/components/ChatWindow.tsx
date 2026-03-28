@@ -6,6 +6,7 @@ import { jwtDecode } from "jwt-decode";
 import toast from "react-hot-toast";
 import { MdDelete } from "react-icons/md";
 import SmallMessage from "./SmallMessage";
+import ChangeGroupDetails from "./ChangeGroupDetails";
 
 interface IMessage {
   _id: string;
@@ -48,6 +49,7 @@ export default function ChatWindow({
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [typingUsers, setTypingUsers] = useState<ITypingUser[]>([]);
   const [openModel, setOpenModel] = useState<Boolean>(false);
+  const [changeDetails, setChangeDetails] = useState<Boolean>(false);
 
   const token = localStorage.getItem("token");
 
@@ -61,11 +63,14 @@ export default function ChatWindow({
   async function deleteMessage(messageId: string) {
     if (!group) return;
     try {
-      await axios.delete(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/message/${messageId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      await axios.delete(
+        `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/message/${messageId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
-      });
+      );
       socket.emit("delete_message", {
         messageId,
         groupId: group._id,
@@ -132,7 +137,6 @@ export default function ChatWindow({
 
   useEffect(() => {
     if (group?._id) {
-
       socket.on("receive_message", getMessages);
 
       return () => {
@@ -197,13 +201,14 @@ export default function ChatWindow({
     <div className="flex flex-col flex-1">
       {/* chat header */}
 
-      <div
-        onClick={() => setOpenModel(!openModel)}
-        className="flex items-center gap-3 px-5 py-3 bg-[#202c33] border-b border-gray-700"
-      >
-        <img src={group.groupDp} className="w-10 h-10 rounded-full" />
+      <div className="flex items-center gap-3 px-5 py-3 bg-[#202c33] border-b border-gray-700">
+        <img
+          onClick={() => setChangeDetails(true)}
+          src={group.groupDp}
+          className="w-10 h-10 rounded-full"
+        />
 
-        <div className="w-full">
+        <div onClick={() => setOpenModel(!openModel)} className="w-full">
           <div className="flex justify-between items-center">
             <p className="text-white font-bold">{group.name}</p>
 
@@ -226,7 +231,7 @@ export default function ChatWindow({
             {group.members.length > 5 && " ....."}
           </div>
 
-        {/* showing who is typing */}
+          {/* showing who is typing */}
           <div className="flex items-center gap-2 text-gray-400 text-sm px-5">
             <span>{typingUsers.map((u) => u.username).join(", ")}</span>
             {typingUsers.length > 0 && (
@@ -238,7 +243,6 @@ export default function ChatWindow({
               </div>
             )}
           </div>
-
         </div>
       </div>
 
@@ -277,6 +281,9 @@ export default function ChatWindow({
       <div className=" gap-3 px-4 py-3 bg-[#202c33]">
         <MessageInput groupId={group._id} />
       </div>
+      {changeDetails && (
+        <ChangeGroupDetails group={group} close={() => setChangeDetails(false)} />
+      )}
     </div>
   );
 }
