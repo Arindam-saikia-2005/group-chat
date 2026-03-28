@@ -58,7 +58,7 @@ export const updateGroupDetails = async (req: Request, res: Response) => {
         const groupId = req.params.groupId as string;
         const {name,groupDp} = req.body;
         const group = await Group.findById(groupId)
-        if (!group) return res.status(400).json({ msg: "Group not found" });
+        if (!group) return res.status(404).json({ msg: "Group not found" });
 
 
         const isAdmin = group.admins.some((adminId) =>

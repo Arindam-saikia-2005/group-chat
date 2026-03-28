@@ -7,8 +7,8 @@ export const groupRoute = express.Router();
 groupRoute.post("/create",protect,createGroup);
 groupRoute.get("/:groupId",protect,getGroupById);
 groupRoute.get("/",protect,usersAllGroups)
-groupRoute.patch("/:groupId/name",protect,updateGroupDetails);
 groupRoute.post("/:groupId/members",protect,addMembers);
+groupRoute.patch("/:groupId/change-details",protect,updateGroupDetails);
 groupRoute.patch("/:groupId/promote-admin",protect,promoteAdmin);
 groupRoute.patch("/:groupId/demote-admin",protect,demoteAdmin)
 groupRoute.delete("/:groupId/members/:userId",protect,removeMember,)
